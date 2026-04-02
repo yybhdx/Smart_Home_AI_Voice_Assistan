@@ -40,3 +40,4 @@ smart home\main.o: ../MyApp/mymq-7.h
 smart home\main.o: D:\Software\Keil\keil_Core\ARM\ARMCC\Bin\..\include\math.h
 smart home\main.o: ../MyApp/hc-sr501.h
 smart home\main.o: ../MyApp/buzzer.h
+smart home\main.o: ../MyApp/esp01s.h

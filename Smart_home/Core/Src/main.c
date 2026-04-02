@@ -35,6 +35,7 @@
 
 #include "buzzer.h"
 
+#include "esp01s.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -103,10 +104,12 @@ int main(void)
   MX_USART1_UART_Init();
   MX_TIM1_Init();
   MX_ADC1_Init();
+  MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
   DHT11_Init();
   OLED_Init();
   OLED_Clear();
+  esp_init();
   
   // 启动 ADC 硬件自校准
   HAL_ADCEx_Calibration_Start(&hadc1);
@@ -121,6 +124,7 @@ int main(void)
     mq7_task();
     oled_task();
 	Buzzer_Task();
+	esp_report();
     HAL_Delay(1000);
     /* USER CODE END WHILE */
 

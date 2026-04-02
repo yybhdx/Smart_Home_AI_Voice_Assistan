@@ -1,0 +1,8 @@
+{
+    "username": "69ce6bd8e094d615922d9e08_Smart_Home",
+    "password": "b859e0be5c2f5ed05ec764914e485d1204b37bb341afe10c91d4a9c8dae43a19",
+    "clientId": "69ce6bd8e094d615922d9e08_Smart_Home_0_0_2026040213",
+    "hostname": "52e4e17470.st1.iotda-device.cn-east-3.myhuaweicloud.com",
+    "port": 8883,
+    "protocol": "MQTTS"
+}

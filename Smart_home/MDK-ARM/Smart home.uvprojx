@@ -992,6 +992,16 @@
               <FileType>5</FileType>
               <FilePath>..\MyApp\buzzer.h</FilePath>
             </File>
+            <File>
+              <FileName>esp01s.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\MyApp\esp01s.c</FilePath>
+            </File>
+            <File>
+              <FileName>esp01s.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\MyApp\esp01s.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
