@@ -88,33 +88,24 @@ void esp_report(void)
 
     // 构造JSON负载
     // 注意: AT指令中的双引号需要转义为 \"
+    // 简化后的 JSON 构造 (不再需要转义反斜杠，不再需要 AT 指令包裹)
     sprintf(payload,
-            "{\\\"services\\\":[{\\\"service_id\\\":\\\"%s\\\","
-            "\\\"properties\\\":{"
-            "\\\"temp\\\":%d,"
-            "\\\"humi\\\":%d,"
-            "\\\"mq-7\\\":%lu,"
-            "\\\"ppm\\\":%.0f,"
-            "\\\"hc_sr_501\\\":%s,"
-            "\\\"people\\\":\\\"%s\\\","
-            "\\\"warning\\\":\\\"%s\\\","
-            "\\\"beep\\\":%s"
+            "{\"services\":[{\"service_id\":\"%s\","
+            "\"properties\":{"
+            "\"temp\":%d,"
+            "\"humi\":%d,"
+            "\"mq-7\":%lu,"
+            "\"ppm\":%.0f,"
+            "\"hc_sr_501\":%s,"
+            "\"people\":\"%s\","
+            "\"warning\":\"%s\","
+            "\"beep\":%s"
             "}}]}",
             HUAWEI_SERVICE_ID,
-            (int)temp,
-            (int)humi,
-            (unsigned long)mq7_adc_value,
-            ppm,
+            (int)temp, (int)humi, (unsigned long)mq7_adc_value, ppm,
             hc_sr501_value ? "true" : "false",
-            people_str,
-            warning_str,
-            beep_status ? "true" : "false");
+            people_str, warning_str, beep_status ? "true" : "false");
 
-    // 发布MQTT消息
-    // AT+MQTTPUB=<link_id>,"<topic>","<data>",<qos>,<retain>
-    my_printf(&huart3, "AT+MQTTPUB=0,\"%s\",\"%s\",0,0\r\n",
-              HUAWEI_MQTT_PUBLISH_TOPIC,
-              payload);
-
-    HAL_Delay(100);
+    // 直接通过串口发送 JSON 字符串，末尾加 \n 方便 ESP32 读取
+    my_printf(&huart3, "%s\n", payload); 
 }
