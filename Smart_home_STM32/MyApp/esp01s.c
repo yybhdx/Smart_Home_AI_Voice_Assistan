@@ -15,40 +15,9 @@ extern uint8_t hc_sr501_value; // 人体红外感应
 extern uint8_t buzzer_bit1;    // 蜂鸣器标志1
 extern uint8_t buzzer_bit2;    // 蜂鸣器标志2
 
-/**
- * @brief ESP01S初始化，连接WiFi和华为云MQTT
- */
-void esp_init(void)
-{
-    // 1. 复位ESP8266模块
-    my_printf(&huart3, "AT+RST\r\n");
-    HAL_Delay(2000);
-
-    // 2. 设置为Station模式
-    my_printf(&huart3, "AT+CWMODE=1\r\n");
-    HAL_Delay(1000);
-
-    // 3. 连接Wi-Fi
-    my_printf(&huart3, "AT+CWJAP=\"%s\",\"%s\"\r\n", WIFI_SSID, WIFI_PWD);
-    HAL_Delay(5000);
-
-    // 4. 配置MQTT用户信息 (使用SSL，端口8883)
-    // AT+MQTTUSERCFG=<link_id>,<scheme>,"<client_id>","<username>","<password>",<cert_key_ID>,<CA_ID>,"<path>"
-    // scheme: 1 = TLS, 2 = TLS验证客户端证书
-    my_printf(&huart3, "AT+MQTTUSERCFG=0,1,\"%s\",\"%s\",\"%s\",0,0,\"\"\r\n",
-              HUAWEI_MQTT_ClientID,
-              HUAWEI_MQTT_USERNAME,
-              HUAWEI_MQTT_PASSWORD);
-    HAL_Delay(1000);
-
-    // 5. 连接MQTT服务器
-    // AT+MQTTCONN=<link_id>,"<host>",<port>,<reconnect>
-    my_printf(&huart3, "AT+MQTTCONN=0,\"%s\",%s,1\r\n",
-              HUAWEI_MQTT_ADDRESS,
-              HUAWEI_MQTT_PORT);
-    HAL_Delay(2000);
-}
-
+char payload[512];
+char people_str[16];
+char warning_str[16];
 /**
  * @brief 上报传感器数据到华为云
  *
@@ -71,9 +40,6 @@ void esp_init(void)
  */
 void esp_report(void)
 {
-    char payload[512];
-    char people_str[16];
-    char warning_str[16];
     uint8_t beep_status;
 
     // 构造属性值

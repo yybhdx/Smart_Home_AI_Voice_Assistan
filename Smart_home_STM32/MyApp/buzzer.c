@@ -1,5 +1,6 @@
 #include "buzzer.h"
 #include "gpio.h"
+#include "usart.h"
 
 extern uint8_t buzzer_bit1;
 extern uint8_t buzzer_bit2;
@@ -23,11 +24,13 @@ void Buzzer_Task()
 	 if(buzzer_bit1 == 0 && buzzer_bit2 == 0)
 	 {
 		 Buzzer_Off();
+		 my_printf(&huart1, "BUZZER_OFF\r\n");
 	 }
 	 // 出现一种状况：检测到人或一氧化碳浓度值超标，蜂鸣器就响
 	 else
 	 {
 		 Buzzer_On();
+		 my_printf(&huart1, "BUZZER_ON\r\n");
 	 }	
 	
 }

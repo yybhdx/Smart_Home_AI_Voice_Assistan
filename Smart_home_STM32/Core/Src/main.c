@@ -109,7 +109,6 @@ int main(void)
   DHT11_Init();
   OLED_Init();
   OLED_Clear();
-  esp_init();
   
   // 启动 ADC 硬件自校准
   HAL_ADCEx_Calibration_Start(&hadc1);
@@ -124,6 +123,7 @@ int main(void)
     mq7_task();
     oled_task();
 	Buzzer_Task();
+//	HAL_UART_Transmit(&huart1, (uint8_t*)"Loop Running\r\n", 14, 100);
 	esp_report();
     HAL_Delay(1000);
     /* USER CODE END WHILE */

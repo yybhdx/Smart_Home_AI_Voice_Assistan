@@ -17,8 +17,6 @@
 #define HUAWEI_SERVICE_ID "BasicData"
 #define HUAWEI_MQTT_PUBLISH_TOPIC "$oc/devices/" HUAWEI_DEVICE_ID "/sys/properties/report"
 
-// 初始化ESP01S并连接华为云
-void esp_init(void);
 
 // 上报传感器数据到华为云
 void esp_report(void);
