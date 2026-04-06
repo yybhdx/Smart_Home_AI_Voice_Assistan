@@ -663,8 +663,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\MyApp\esp01s.c</PathWithFileName>
-      <FilenameWithoutPath>esp01s.c</FilenameWithoutPath>
+      <PathWithFileName>..\MyApp\esp32-s3.c</PathWithFileName>
+      <FilenameWithoutPath>esp32-s3.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -675,8 +675,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\MyApp\esp01s.h</PathWithFileName>
-      <FilenameWithoutPath>esp01s.h</FilenameWithoutPath>
+      <PathWithFileName>..\MyApp\esp32-s3.h</PathWithFileName>
+      <FilenameWithoutPath>esp32-s3.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

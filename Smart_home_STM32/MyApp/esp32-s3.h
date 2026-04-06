@@ -1,5 +1,5 @@
-#ifndef ESP01S_H
-#define ESP01S_H
+#ifndef ESP32_S3_H
+#define ESP32_S3_H
 
 #include <stdint.h>
 
@@ -14,7 +14,7 @@
 #define HUAWEI_MQTT_ClientID "69ce6bd8e094d615922d9e08_Smart_Home_0_0_2026040213"
 #define HUAWEI_MQTT_ADDRESS "52e4e17470.st1.iotda-device.cn-east-3.myhuaweicloud.com"
 #define HUAWEI_MQTT_PORT "8883"
-#define HUAWEI_SERVICE_ID "BasicData"
+#define HUAWEI_SERVICE_ID "Smart_Home"
 #define HUAWEI_MQTT_PUBLISH_TOPIC "$oc/devices/" HUAWEI_DEVICE_ID "/sys/properties/report"
 
 

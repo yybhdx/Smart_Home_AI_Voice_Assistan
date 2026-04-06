@@ -29,7 +29,7 @@
 "smart home\mymq-7.o"
 "smart home\hc-sr501.o"
 "smart home\buzzer.o"
-"smart home\esp01s.o"
+"smart home\esp32-s3.o"
 --library_type=microlib --strict --scatter "Smart home\Smart home.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

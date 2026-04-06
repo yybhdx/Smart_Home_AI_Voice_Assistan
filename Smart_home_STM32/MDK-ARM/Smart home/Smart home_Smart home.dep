@@ -1,7 +1,7 @@
 Dependencies for Project 'Smart home', Target 'Smart home': (DO NOT MODIFY !)
 CompilerVersion: 5060960::V5.06 update 7 (build 960)::.\ARMCC
 F (startup_stm32f103xb.s)(0x69CE709B)(--cpu Cortex-M3 -g --apcs=interwork --pd "__MICROLIB SETA 1"-I.\RTE\_Smart_home-ID:\Software\Keil\keil_Core\PACK\ARM\CMSIS\6.1.0\CMSIS\Core\Include-ID:\Software\Keil\keil_Core\PACK\Keil\STM32F1xx_DFP\2.2.0\Device\Include--pd "__UVISION_VERSION SETA 541" --pd "STM32F10X_MD SETA 1" --pd "_RTE_ SETA 1"--list startup_stm32f103xb.lst --xref -o "smart home\startup_stm32f103xb.o" --depend "smart home\startup_stm32f103xb.d")
-F (../Core/Src/main.c)(0x69D30ED5)(--c99 -c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include -I ../MyApp-I.\RTE\_Smart_home-ID:\Software\Keil\keil_Core\PACK\ARM\CMSIS\6.1.0\CMSIS\Core\Include-ID:\Software\Keil\keil_Core\PACK\Keil\STM32F1xx_DFP\2.2.0\Device\Include-D__UVISION_VERSION="541" -DSTM32F10X_MD -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F103xB-o "smart home\main.o" --omf_browse "smart home\main.crf" --depend "smart home\main.d")
+F (../Core/Src/main.c)(0x69D31336)(--c99 -c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include -I ../MyApp-I.\RTE\_Smart_home-ID:\Software\Keil\keil_Core\PACK\ARM\CMSIS\6.1.0\CMSIS\Core\Include-ID:\Software\Keil\keil_Core\PACK\Keil\STM32F1xx_DFP\2.2.0\Device\Include-D__UVISION_VERSION="541" -DSTM32F10X_MD -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F103xB-o "smart home\main.o" --omf_browse "smart home\main.crf" --depend "smart home\main.d")
 I (../Core/Inc/main.h)(0x69C75591)
 I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h)(0x69A45718)
 I (../Core/Inc/stm32f1xx_hal_conf.h)(0x69BA925D)
@@ -42,7 +42,7 @@ I (../MyApp/mymq-7.h)(0x69C76199)
 I (D:\Software\Keil\keil_Core\ARM\ARMCC\include\math.h)(0x60252378)
 I (../MyApp/hc-sr501.h)(0x69C76152)
 I (../MyApp/buzzer.h)(0x69C7613E)
-I (../MyApp/esp01s.h)(0x69D30B5A)
+I (../MyApp/esp32-s3.h)(0x69D31347)
 F (../Core/Src/gpio.c)(0x69C7583F)(--c99 -c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include -I ../MyApp-I.\RTE\_Smart_home-ID:\Software\Keil\keil_Core\PACK\ARM\CMSIS\6.1.0\CMSIS\Core\Include-ID:\Software\Keil\keil_Core\PACK\Keil\STM32F1xx_DFP\2.2.0\Device\Include-D__UVISION_VERSION="541" -DSTM32F10X_MD -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F103xB-o "smart home\gpio.o" --omf_browse "smart home\gpio.crf" --depend "smart home\gpio.d")
 I (../Core/Inc/gpio.h)(0x69BA925D)
 I (../Core/Inc/main.h)(0x69C75591)
@@ -895,7 +895,7 @@ I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h)(0x69A45717)
 I (../Core/Inc/usart.h)(0x69CE7098)
 I (..\MyApp\myoled.h)(0x69BA925D)
 F (..\MyApp\hc-sr501.h)(0x69C76152)()
-F (..\MyApp\buzzer.c)(0x69D30F40)(--c99 -c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include -I ../MyApp-I.\RTE\_Smart_home-ID:\Software\Keil\keil_Core\PACK\ARM\CMSIS\6.1.0\CMSIS\Core\Include-ID:\Software\Keil\keil_Core\PACK\Keil\STM32F1xx_DFP\2.2.0\Device\Include-D__UVISION_VERSION="541" -DSTM32F10X_MD -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F103xB-o "smart home\buzzer.o" --omf_browse "smart home\buzzer.crf" --depend "smart home\buzzer.d")
+F (..\MyApp\buzzer.c)(0x69D30F66)(--c99 -c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include -I ../MyApp-I.\RTE\_Smart_home-ID:\Software\Keil\keil_Core\PACK\ARM\CMSIS\6.1.0\CMSIS\Core\Include-ID:\Software\Keil\keil_Core\PACK\Keil\STM32F1xx_DFP\2.2.0\Device\Include-D__UVISION_VERSION="541" -DSTM32F10X_MD -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F103xB-o "smart home\buzzer.o" --omf_browse "smart home\buzzer.crf" --depend "smart home\buzzer.d")
 I (..\MyApp\buzzer.h)(0x69C7613E)
 I (../Core/Inc/gpio.h)(0x69BA925D)
 I (../Core/Inc/main.h)(0x69C75591)
@@ -930,8 +930,8 @@ I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h)(0x69A45718)
 I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h)(0x69A45717)
 I (../Core/Inc/usart.h)(0x69CE7098)
 F (..\MyApp\buzzer.h)(0x69C7613E)()
-F (..\MyApp\esp01s.c)(0x69D30EC0)(--c99 -c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include -I ../MyApp-I.\RTE\_Smart_home-ID:\Software\Keil\keil_Core\PACK\ARM\CMSIS\6.1.0\CMSIS\Core\Include-ID:\Software\Keil\keil_Core\PACK\Keil\STM32F1xx_DFP\2.2.0\Device\Include-D__UVISION_VERSION="541" -DSTM32F10X_MD -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F103xB-o "smart home\esp01s.o" --omf_browse "smart home\esp01s.crf" --depend "smart home\esp01s.d")
-I (..\MyApp\esp01s.h)(0x69D30B5A)
+F (..\MyApp\esp32-s3.c)(0x69D3132D)(--c99 -c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include -I ../MyApp-I.\RTE\_Smart_home-ID:\Software\Keil\keil_Core\PACK\ARM\CMSIS\6.1.0\CMSIS\Core\Include-ID:\Software\Keil\keil_Core\PACK\Keil\STM32F1xx_DFP\2.2.0\Device\Include-D__UVISION_VERSION="541" -DSTM32F10X_MD -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F103xB-o "smart home\esp32-s3.o" --omf_browse "smart home\esp32-s3.crf" --depend "smart home\esp32-s3.d")
+I (..\MyApp\esp32-s3.h)(0x69D31347)
 I (D:\Software\Keil\keil_Core\ARM\ARMCC\include\stdint.h)(0x6025237E)
 I (../Core/Inc/usart.h)(0x69CE7098)
 I (../Core/Inc/main.h)(0x69C75591)
@@ -971,4 +971,4 @@ I (..\MyApp\hc-sr501.h)(0x69C76152)
 I (../Core/Inc/gpio.h)(0x69BA925D)
 I (..\MyApp\buzzer.h)(0x69C7613E)
 I (D:\Software\Keil\keil_Core\ARM\ARMCC\include\stdio.h)(0x60252374)
-F (..\MyApp\esp01s.h)(0x69D30B5A)()
+F (..\MyApp\esp32-s3.h)(0x69D31347)()

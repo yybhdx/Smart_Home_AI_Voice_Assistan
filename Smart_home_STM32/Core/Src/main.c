@@ -35,7 +35,7 @@
 
 #include "buzzer.h"
 
-#include "esp01s.h"
+#include "esp32-s3.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
