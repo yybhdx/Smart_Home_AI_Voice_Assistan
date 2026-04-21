@@ -24,6 +24,8 @@ set(SOURCES "audio/audio_codec.cc"
             "settings.cc"
             "device_state_event.cc"
             "main.cc"
+            "stm32_uart.c"
+            "huawei_cloud.c"
             )
 
 set(INCLUDE_DIRS "." "display" "audio" "protocols")

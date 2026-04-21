@@ -7,6 +7,8 @@
 
 #include "application.h"
 #include "system_info.h"
+#include "stm32_uart.h"
+#include "freertos/task.h"
 
 #define TAG "main"
 
@@ -24,6 +26,9 @@ extern "C" void app_main(void)
     }
     ESP_ERROR_CHECK(ret);
 
-    // Launch the application
+    // Start STM32 UART + Huawei Cloud task (waits for WiFi internally)
+    xTaskCreate(stm32_uart_task, "stm32_task", 4096, NULL, 5, NULL);
+
+    // Launch xiaozhi application (blocks here)
     Application::GetInstance().Start();
 }
