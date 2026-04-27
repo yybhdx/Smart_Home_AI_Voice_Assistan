@@ -112,7 +112,7 @@ ESP32-S3 是一颗**双核单片机**（Xtensa LX7，240MHz），搭载 FreeRTOS
 | 触摸按键 | - | GPIO47 |
 | 音量+ | - | GPIO40 |
 | 音量- | - | GPIO39 |
-| **STM32 串口** | **UART1** | **TX=GPIO8, RX=GPIO9** |
+| **STM32 串口** | **UART1** | **STM32的PB10接ESP32的GPIO8, PB11接EPS32的GPIO9** |
 
 ### STM32F103 外设
 

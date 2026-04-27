@@ -1,0 +1,122 @@
+[
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-xxxhdpi_ic_billing_on_round.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-xxxhdpi/ic_billing_on_round.webp"
+    },
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-mdpi_ic_launcher.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-mdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-xxxhdpi_ic_launcher.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-xxxhdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-xxxhdpi_ic_billing_on.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-xxxhdpi/ic_billing_on.webp"
+    },
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-xxxhdpi_ic_billing_off_round.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-xxxhdpi/ic_billing_off_round.webp"
+    },
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-xhdpi_ic_billing_on_round.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-xhdpi/ic_billing_on_round.webp"
+    },
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-mdpi_ic_launcher_round.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-mdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-xhdpi_ic_billing_on.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-xhdpi/ic_billing_on.webp"
+    },
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-xxxhdpi_ic_launcher_round.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-xxxhdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-xxhdpi_ic_billing_off_round.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-xxhdpi/ic_billing_off_round.webp"
+    },
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-mdpi_ic_billing_off.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-mdpi/ic_billing_off.webp"
+    },
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-xxxhdpi_ic_billing_off.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-xxxhdpi/ic_billing_off.webp"
+    },
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-mdpi_ic_billing_off_round.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-mdpi/ic_billing_off_round.webp"
+    },
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-hdpi_ic_launcher.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-hdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-xhdpi_ic_launcher_round.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-xhdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-xhdpi_ic_billing_off_round.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-xhdpi/ic_billing_off_round.webp"
+    },
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-mdpi_ic_billing_on_round.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-mdpi/ic_billing_on_round.webp"
+    },
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-hdpi_ic_launcher_round.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-hdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-hdpi_ic_billing_off.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-hdpi/ic_billing_off.webp"
+    },
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-mdpi_ic_billing_on.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-mdpi/ic_billing_on.webp"
+    },
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-hdpi_ic_billing_off_round.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-hdpi/ic_billing_off_round.webp"
+    },
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-hdpi_ic_billing_on_round.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-hdpi/ic_billing_on_round.webp"
+    },
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-xxhdpi_ic_launcher.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-xxhdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-xxhdpi_ic_billing_on_round.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-xxhdpi/ic_billing_on_round.webp"
+    },
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-xxhdpi_ic_launcher_round.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-xxhdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-hdpi_ic_billing_on.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-hdpi/ic_billing_on.webp"
+    },
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-xxhdpi_ic_billing_off.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-xxhdpi/ic_billing_off.webp"
+    },
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-xhdpi_ic_billing_off.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-xhdpi/ic_billing_off.webp"
+    },
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-xhdpi_ic_launcher.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-xhdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "com.smarthome.huawei.app-merged_res-45:/mipmap-xxhdpi_ic_billing_on.webp.flat",
+        "source": "com.smarthome.huawei.app-main-47:/mipmap-xxhdpi/ic_billing_on.webp"
+    }
+]

@@ -4,9 +4,9 @@
 #include "mqtt_client.h"
 
 #define HUAWEI_MQTT_URL     "mqtt://52e4e17470.st1.iotda-device.cn-east-3.myhuaweicloud.com"
-#define HUAWEI_CLIENT_ID    "69ce6bd8e094d615922d9e08_Smart_Home_0_0_2026040213"
+#define HUAWEI_CLIENT_ID    "69ce6bd8e094d615922d9e08_Smart_Home_0_0_2026042700"
 #define HUAWEI_USERNAME     "69ce6bd8e094d615922d9e08_Smart_Home"
-#define HUAWEI_PASSWORD     "b859e0be5c2f5ed05ec764914e485d1204b37bb341afe10c91d4a9c8dae43a19"
+#define HUAWEI_PASSWORD     "f9c112cc3e69e14e2b9d6dcca1f14735406fd6dc6746b6dcaa1cf75d8736e9e6"
 
 static const char *TAG = "HUAWEI_CLOUD";
 static esp_mqtt_client_handle_t client = NULL;

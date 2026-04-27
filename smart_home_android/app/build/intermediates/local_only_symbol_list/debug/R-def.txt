@@ -1,0 +1,10 @@
+R_DEF: Internal format may change without notice
+local
+mipmap ic_billing_off
+mipmap ic_billing_off_round
+mipmap ic_billing_on
+mipmap ic_billing_on_round
+mipmap ic_launcher
+mipmap ic_launcher_round
+string app_name
+style Theme.SmartHomeHuawei
