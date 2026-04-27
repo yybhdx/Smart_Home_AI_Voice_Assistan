@@ -1,6 +1,6 @@
 # 智能家居 AI 语音助手
 
-基于 ESP32-S3 双核单片机的智能家居系统，融合了小智 AI 语音交互、传感器数据采集上传、以及 Flutter 移动端 APP 远程监控功能。
+基于 ESP32-S3 双核单片机的智能家居系统，融合了小智 AI 语音交互、传感器数据采集上传、以及 Android 移动端 APP 远程监控功能。
 
 ## 项目概述
 
@@ -10,61 +10,55 @@
 |------|----------|------|
 | **传感器采集** | STM32F103 | 读取温湿度、人体红外、CO 气体传感器数据，通过串口发送给 ESP32-S3 |
 | **AI 语音 + 云端上传** | ESP32-S3 | 运行小智 AI 实现语音交互，同时接收 STM32 数据并上传至华为云 IoT 平台 |
-| **移动端监控 APP** | Flutter (Android/iOS) | 通过 MQTT 协议从华为云实时读取传感器数据，远程监控与设备控制 |
+| **移动端监控 APP** | Android (Kotlin + Jetpack Compose) | 通过华为云 IoTDA REST API 实时读取传感器数据，远程监控设备状态 |
+
+> **说明**：移动端 APP 最初使用 Flutter 开发，后因 Flutter 的 MQTT 客户端无法正常连接华为云 IoT 平台，改为使用 Android Studio 原生开发（Kotlin + Jetpack Compose），通过 REST API 方式获取设备数据。
 
 ## 项目目录结构
 
 ```
-Graduation-Project/
+Smart_Home_AI_Voice_Assistan/
 ├── README.md                          ← 项目说明文档（本文件）
+├── APP配置参数.txt                     ← Android APP 所需的华为云配置参数（使用前必读）
+├── 云平台配置参数.txt                   ← 华为云 IoT 平台配置参数
+├── 华为云数据格式.txt                   ← 华为云物模型数据格式定义
+├── ESP32-S3配置文件/                   ← ESP32-S3 编译所需的 sdkconfig 配置文件
+│   └── sdkconfig                      ← 需在编译前复制到 xiaozhi-esp32 工程根目录
 ├── Smart_home_STM32/                  ← STM32F103 传感器采集工程
 │   ├── Core/                          ← STM32 HAL 库核心代码
 │   ├── MyApp/                         ← 传感器驱动（DHT11、HC-SR501、MQ-7、OLED、蜂鸣器）
 │   ├── MDK-ARM/                       ← Keil 工程文件
 │   └── Smart home.ioc                 ← STM32CubeMX 配置文件
-├── Smart_home_ESP32-S3/               ← ESP32-S3 独立版（仅串口+MQTT，未合并小智AI）
+├── xiaozhi-esp32-1.8.4-2026.4.20/    ← ESP32-S3 主工程（小智AI + 传感器 + 华为云）
 │   └── main/
-│       ├── main.c                     ← UART 读取 + MQTT 发布
-│       ├── wifi_mqtt.c/h             ← WiFi 连接 + 华为云 MQTT
-│       └── audio_manager.c/h         ← I2S 音频回环（独立版用）
-├── xiaozhi-esp32-1.8.4-2026.4.20/    ← 最终合并工程（小智AI + 传感器 + 华为云）
-│   └── main/
-│       ├── stm32_uart.c/h            ← 新增：STM32 串口通信 + 数据上传任务
-│       ├── huawei_cloud.c/h          ← 新增：华为云 MQTT 客户端
-│       ├── main.cc                   ← 修改：启动 stm32_task
+│       ├── stm32_uart.c/h            ← STM32 串口通信 + 数据上传任务
+│       ├── huawei_cloud.c/h          ← 华为云 MQTT 客户端
+│       ├── main.cc                   ← 启动 stm32_task
 │       └── boards/bread-compact-wifi/
-│           └── config.h              ← 板级引脚配置（小智AI引脚不变）
-└── smart_home_flutter/                ← Flutter 移动端 APP（智能家居助手）
-    ├── pubspec.yaml                   ← 依赖配置
-    └── lib/
-        ├── main.dart                  ← APP 入口
-        ├── config/                    ← 路由配置、华为云连接常量
-        ├── models/                    ← 数据模型（传感器、设备、报警记录、阈值）
-        ├── services/                  ← 服务层（MQTT、REST API、本地存储、通知）
-        ├── providers/                 ← 状态管理（Provider 模式）
-        ├── screens/                   ← 页面（首页、报警、设备、设置）
-        └── widgets/                   ← 通用组件（传感器卡片等）
+│           └── config.h              ← 板级引脚配置
+└── smart_home_android/                ← Android 移动端 APP（智能家居监控）
+    ├── app/src/main/java/com/smarthome/huawei/
+    │   ├── MainActivity.kt            ← APP 主界面（Jetpack Compose）
+    │   └── HuaweiIOT.kt              ← 华为云 IoTDA REST API 封装
+    └── build.gradle                   ← 构建配置
 ```
-
-> **说明**：`Smart_home_ESP32-S3` 是合并前的独立版本，功能已整合到 `xiaozhi-esp32` 中，仅作存档保留。实际烧录使用 `xiaozhi-esp32-1.8.4-2026.4.20` 目录。
 
 ## 系统总体架构
 
 ```
-┌──────────────┐   UART   ┌──────────────────┐   MQTT   ┌──────────┐   MQTT   ┌──────────────────┐
-│  STM32F103   │ ───────→ │    ESP32-S3      │ ───────→ │  华为云   │ ←─────── │  Flutter APP     │
-│  传感器采集   │  JSON    │  AI语音+云端上传  │  上传    │  IoT平台  │  订阅    │  移动端监控      │
-│  温湿度/CO/  │          │                  │          │  IoTDA   │          │  实时数据展示     │
-│  人体红外     │          └──────────────────┘          └──────────┘          │  报警通知        │
-└──────────────┘                                                              │  远程控制        │
-                                                                              └──────────────────┘
+┌──────────────┐   UART   ┌──────────────────┐   MQTT   ┌──────────┐  REST API  ┌──────────────────┐
+│  STM32F103   │ ───────→ │    ESP32-S3      │ ───────→ │  华为云   │ ←────────── │  Android APP     │
+│  传感器采集   │  JSON    │  AI语音+云端上传  │  上传    │  IoT平台  │  读取数据   │  移动端监控      │
+│  温湿度/CO/  │          │                  │          │  IoTDA   │            │  实时数据展示     │
+│  人体红外     │          └──────────────────┘          └──────────┘            └──────────────────┘
+└──────────────┘
 ```
 
 系统工作流程：
 
 1. **STM32F103** 每秒采集传感器数据并通过串口发送 JSON 给 ESP32-S3
 2. **ESP32-S3** 通过 MQTT 将数据上传至华为云 IoT 平台，同时运行小智 AI 语音交互
-3. **Flutter APP** 通过 MQTT 订阅华为云设备属性上报主题，实时获取传感器数据，提供数据展示、报警通知和远程设备控制
+3. **Android APP** 通过华为云 IoTDA REST API 读取设备影子数据，实时展示传感器状态
 
 ## 双核并行架构
 
@@ -100,19 +94,43 @@ ESP32-S3 是一颗**双核单片机**（Xtensa LX7，240MHz），搭载 FreeRTOS
 
 ## 硬件清单
 
-### ESP32-S3 外设
+### ESP32-S3 外设与接线
+
+#### I2S 数字麦克风（6 pin）
+
+| 麦克风引脚 | ESP32-S3 GPIO | 说明 |
+|-----------|---------------|------|
+| WS（字选择） | GPIO4 | I2S Word Select |
+| SCK（时钟） | GPIO5 | I2S Serial Clock |
+| SD（数据） | GPIO6 | I2S Data In（DIN） |
+| L/R（声道选择） | 接 GND | 选择右声道（低电平有效） |
+| VDD | 接 3.3V | 电源 |
+| GND | 接 GND | 地 |
+
+#### I2S 功放模块（7 pin）
+
+| 功放引脚 | ESP32-S3 GPIO | 说明 |
+|---------|---------------|------|
+| DIN（数据输入） | GPIO7 | I2S Data Out（DOUT） |
+| BCLK（位时钟） | GPIO15 | I2S Bit Clock |
+| LRC（左右声道） | GPIO16 | I2S Left/Right Clock |
+| SD_MODE | 接高电平或悬空 | 芯片使能（高电平=播放模式） |
+| GAIN | 接 GND | 增益选择（硬件跳线） |
+| VIN | 接 5V | 功放电源 |
+| GND | 接 GND | 地 |
+
+#### 其他外设
 
 | 外设 | 型号/类型 | 引脚 |
 |------|----------|------|
-| 麦克风 | I2S 数字麦克风 | WS=GPIO4, SCK=GPIO5, DIN=GPIO6 |
-| 扬声器 | I2S 功放模块 | DOUT=GPIO7, BCLK=GPIO15, LRCK=GPIO16 |
-| OLED 屏幕 | SSD1306 128x32 | SDA=GPIO41, SCL=GPIO42 |
+| OLED 屏幕 | SSD1306 128x32 (I2C) | SDA=GPIO41, SCL=GPIO42 |
 | LED | WS2812 RGB | GPIO48 |
 | BOOT 按键 | - | GPIO0 |
 | 触摸按键 | - | GPIO47 |
 | 音量+ | - | GPIO40 |
 | 音量- | - | GPIO39 |
-| **STM32 串口** | **UART1** | **STM32的PB10接ESP32的GPIO8, PB11接EPS32的GPIO9** |
+| 灯控输出 | - | GPIO18 |
+| **STM32 串口** | **UART1** | **TX=GPIO8, RX=GPIO9**（STM32 PB10→GPIO9, PB11←GPIO8） |
 
 ### STM32F103 外设
 
@@ -174,16 +192,16 @@ STM32 每秒通过串口发送一次 JSON 数据，格式如下：
 ## 系统工作流程
 
 ```
-STM32F103                          ESP32-S3                           华为云                        Flutter APP
+STM32F103                          ESP32-S3                           华为云                        Android APP
 ┌─────────┐                     ┌──────────────────┐              ┌──────────┐                ┌──────────────┐
 │ 传感器   │                     │                  │              │          │                │              │
-│ 采集    │──UART3(PB10)────→  │ UART1(GPIO9)     │              │          │   MQTT 订阅    │  实时数据展示  │
+│ 采集    │──UART3(PB10)────→  │ UART1(GPIO9)     │              │          │  REST API      │  实时数据展示  │
 │(每1秒)  │   JSON数据          │      ↓           │              │  IoT     │ ──────────────→│  温度/湿度/CO │
-│         │                     │ stm32_task 读取   │              │  Device  │                │  人体红外状态  │
-│ OLED    │                     │      ↓           │              │  Hub     │   属性上报      │              │
-│ 显示    │                     │ MQTT 发布(每1秒)  │──MQTT(1883)─→│          │ ←──────────────│  MQTT 命令    │
-│ 蜂鸣器  │                     │                  │   传感器数据  │          │                │  蜂鸣器控制   │
-│ 报警    │                     │  ─ ─ ─ ─ ─ ─ ─  │              │          │                │  报警通知     │
+│         │                     │ stm32_task 读取   │              │  Device  │  读取设备影子   │  人体红外状态  │
+│ OLED    │                     │      ↓           │              │  Hub     │                │              │
+│ 显示    │                     │ MQTT 发布(每1秒)  │──MQTT(1883)─→│          │                │  连接状态监控  │
+│ 蜂鸣器  │                     │                  │   传感器数据  │          │                │              │
+│ 报警    │                     │  ─ ─ ─ ─ ─ ─ ─  │              │          │                │              │
 │         │                     │                  │              │          │                │              │
 │         │                     │ 小智 AI 语音交互  │              │          │                │              │
 │         │                     │ 麦克风→ASR→LLM→  │              │          │                │              │
@@ -191,83 +209,49 @@ STM32F103                          ESP32-S3                           华为云 
 └─────────┘                     └──────────────────┘              └──────────┘                └──────────────┘
 ```
 
-## Flutter 移动端 APP
+## Android 移动端 APP
 
 ### 功能概览
 
-APP 通过 MQTT 协议连接华为云 IoT 平台，实时读取设备上报的传感器数据，提供以下功能：
+APP 通过华为云 IoTDA REST API 读取设备影子数据，实时展示传感器状态：
 
 | 功能模块 | 说明 |
 |----------|------|
-| **实时数据展示** | 首页展示温度、湿度、CO 浓度传感器卡片，人体红外安防状态，设备运行状态 |
-| **报警记录** | 自动检测数据是否超过阈值，生成本地报警记录并推送通知，支持报警历史查看与一键清除 |
-| **设备控制** | 远程控制蜂鸣器开关、安防模式开关、报警通知开关 |
-| **设置** | 主题切换（亮色/暗色/跟随系统）、报警阈值自定义（温度/湿度/CO 浓度） |
-| **模拟模式** | 无硬件时自动生成模拟数据用于演示和测试 |
-
-### 页面结构
-
-```
-底部导航栏（4个页面）
-├── 首页（Home）       ← 传感器数据卡片、安防状态面板、设备状态面板、报警横幅
-├── 报警（Warning）    ← 报警记录列表、严重等级标签、详情弹窗、一键清除
-├── 设备（Device）     ← 设备在线状态、蜂鸣器/安防/通知开关控制
-└── 设置（Settings）   ← 主题选择、报警阈值配置、关于信息
-```
+| **连接状态** | 显示与华为云的连接状态（连接中/已连接/连接失败） |
+| **实时数据展示** | 展示温度、湿度、CO 浓度（ADC/PPM）、人体红外、人员状态、警报状态、蜂鸣器状态 |
+| **数据颜色指示** | 传感器数值根据阈值自动变色（正常绿色/警告橙色/超标红色） |
 
 ### 技术架构
 
 | 技术栈 | 选型 | 用途 |
 |--------|------|------|
-| 状态管理 | Provider | ChangeNotifier + Provider 模式管理全局状态 |
-| 网络通信 | mqtt_client | MQTT v3.1.1 协议连接华为云 IoTDA |
-| HTTP 客户端 | Dio | 华为云 IoTDA REST API 调用 |
-| 本地存储 | SharedPreferences | 报警记录、阈值配置持久化 |
-| 通知推送 | flutter_local_notifications | 本地报警通知 |
-| 屏幕适配 | flutter_screenutil | 多屏幕尺寸适配（基准 375×812） |
+| 开发语言 | Kotlin | Android 原生开发 |
+| UI 框架 | Jetpack Compose + Material 3 | 声明式 UI 界面 |
+| 网络通信 | HttpURLConnection + 华为云 REST API | 通过设备影子读取传感器数据 |
+| JSON 解析 | Jackson | 解析华为云 API 响应 |
+| 异步处理 | Kotlin Coroutines | 网络请求异步处理 |
+| 数据获取方式 | IoTDA 设备影子 API | 每 2 秒轮询一次获取最新数据 |
 
 ### APP 连接华为云方式
 
-APP 作为**数据消费端**通过 MQTT 连接华为云 IoT 平台，订阅设备属性上报主题获取实时数据：
+APP 作为**数据消费端**，通过华为云 IAM 鉴权获取 Token，然后调用 IoTDA REST API 读取设备影子数据：
 
 | 配置项 | 值 |
 |--------|-----|
-| MQTT Broker | `52e4e17470.st1.iotda-device.cn-east-3.myhuaweicloud.com` |
-| 端口 | 1883 |
-| 设备ID | `69ce6bd8e094d615922d9e08_Smart_Home_0_0_2026040213` |
-| 订阅主题 | `$oc/devices/{device_id}/sys/properties/report` |
-| 命令主题 | `$oc/devices/{device_id}/sys/commands/request/id/{timestamp}` |
+| IAM 用户名 | `jifei` |
+| 华为账号名 | `hw005226973` |
+| 项目ID | `dd5978aa446b4690884b89027c186d6e` |
+| 设备ID | `69ce6bd8e094d615922d9e08_Smart_Home` |
+| IoT 应用端点 | `52e4e17470.st1.iotda-app.cn-east-3.myhuaweicloud.com` |
+| 设备影子 API | `GET /v5/iot/{project_id}/devices/{device_id}/shadow` |
+| 数据刷新频率 | 每 2 秒 |
 
 ### 项目代码结构
 
 ```
-smart_home_flutter/lib/
-├── main.dart                    ← APP 入口，初始化 Provider 和路由
-├── config/
-│   ├── app_config.dart          ← 华为云连接常量
-│   └── routes.dart              ← 命名路由定义
-├── models/
-│   ├── sensor_data.dart         ← 传感器数据模型（temp/humi/mq-7/ppm/hc_sr_501 等）
-│   ├── device_info.dart         ← 设备信息模型
-│   ├── warning_record.dart      ← 报警记录模型
-│   └── warning_threshold.dart   ← 报警阈值模型
-├── services/
-│   ├── mqtt_service.dart        ← MQTT 客户端（连接、订阅、发布）
-│   ├── huawei_api_service.dart  ← 华为云 REST API 客户端
-│   ├── storage_service.dart     ← 本地持久化存储
-│   └── notification_service.dart← 本地通知推送
-├── providers/
-│   ├── sensor_provider.dart     ← 传感器数据状态管理（核心：MQTT 数据接收、报警检测、模拟数据）
-│   ├── device_provider.dart     ← 设备在线/离线状态管理
-│   └── theme_provider.dart      ← 主题切换管理
-├── screens/
-│   ├── main_screen.dart         ← 底部导航框架
-│   ├── home/home_screen.dart    ← 首页（实时数据展示）
-│   ├── warning/warning_screen.dart← 报警记录页
-│   ├── device/device_screen.dart← 设备控制页
-│   └── settings/settings_screen.dart← 设置页
-└── widgets/
-    └── sensor_card.dart         ← 传感器数据卡片组件
+smart_home_android/app/src/main/java/com/smarthome/huawei/
+├── MainActivity.kt            ← APP 主界面（Compose UI + 数据轮询逻辑）
+└── HuaweiIOT.kt              ← 华为云 IoTDA API 封装（Token 获取、设备影子读取、命令下发）
 ```
 
 ## 软件结构
@@ -290,10 +274,12 @@ main/
 
 - ESP-IDF v5.5
 - Python 3.11
-- Flutter SDK 3.x
+- Android Studio（Flutter 已弃用，不再需要）
 - STM32CubeMX + Keil MDK-ARM（仅 STM32 端）
 
 ### ESP32-S3 编译烧录
+
+> **重要**：编译前，必须先将 `ESP32-S3配置文件/sdkconfig` 复制到 `xiaozhi-esp32-1.8.4-2026.4.20/` 目录下，覆盖原有的 sdkconfig 文件。
 
 在 ESP-IDF CMD 终端中执行：
 
@@ -303,24 +289,25 @@ idf.py build
 idf.py -p COM8 flash monitor
 ```
 
+#### 启动 AI 功能
+
+烧录完成后，**首次使用需要按一下 ESP32-S3 的 BOOT 键**，确保串口日志中出现以下信息：
+
+```
+wifi:Set ps type: 0, coexist: 0
+```
+
+两项值均为 `0` 时，AI 语音功能才能正常启动。
+
 ### STM32 编译烧录
 
 使用 Keil MDK-ARM 打开 `Smart_home_STM32/MDK-ARM/Smart home.uvprojx`，编译并下载。
 
-### Flutter APP 编译运行
+### Android APP 编译运行
 
-```bash
-cd smart_home_flutter
+> **重要**：编译前，必须将 `APP配置参数.txt` 中的配置参数填入 `HuaweiIOT.kt` 文件的对应常量中，包括华为账号名、IAM 用户名、IAM 密码、项目ID、设备ID 等。
 
-# 获取依赖
-flutter pub get
-
-# 运行（连接手机或模拟器）
-flutter run
-
-# 构建 APK
-flutter build apk
-```
+使用 Android Studio 打开 `smart_home_android/` 目录，连接 Android 手机或使用模拟器，点击运行即可。
 
 ## WiFi 配置
 
@@ -332,8 +319,8 @@ flutter build apk
 - **非阻塞设计**：stm32_task 大部分时间处于阻塞状态（等待串口数据/延时），不会影响语音任务的实时性
 - **独立 MQTT 通道**：华为云 MQTT 与小智 AI 的通信协议互不干扰，各自维护独立的连接
 - **串口引脚选择**：STM32 串口使用 GPIO8/9（UART1），避开了小智 AI 的麦克风引脚 GPIO4/5/6
-- **APP 实时监控**：Flutter APP 通过 MQTT 订阅华为云属性上报主题，与 ESP32 端共享同一设备通道，实现端到云到手机的数据闭环
-- **模拟模式**：APP 内置模拟数据生成，无硬件设备时也可正常运行和演示
+- **APP 数据获取方式**：Android APP 通过华为云 IoTDA 设备影子 REST API 获取数据（非 MQTT），解决了 Flutter MQTT 客户端兼容性问题
+- **IAM 鉴权**：APP 通过华为云 IAM 接口获取 Token，再调用 IoTDA API，保证访问安全性
 
 ## 华为云 IoT 平台
 
@@ -343,7 +330,7 @@ flutter build apk
 |--------|-----|
 | MQTT Broker | `52e4e17470.st1.iotda-device.cn-east-3.myhuaweicloud.com` |
 | 端口 | 1883 |
-| 设备ID | `69ce6bd8e094d615922d9e08_Smart_Home_0_0_2026040213` |
+| 设备ID | `69ce6bd8e094d615922d9e08_Smart_Home` |
 | 发布主题 | `$oc/devices/.../sys/properties/report` |
 | 上传频率 | 每秒1次 |
 
@@ -378,13 +365,13 @@ flutter build apk
             ┌─────────────── 华为云 IoTDA ─────────────┐
             │                                          │
             │       MQTT 属性上报 ──→ 设备影子          │
-            │       MQTT 命令下发 ←── APP 控制          │
+            │       REST API 查询 ←── APP 读取         │
             └──────────────────────────────────────────┘
                             ↕
-            ┌─────────────── Flutter APP ──────────────┐
+            ┌─────────────── Android APP ─────────────┐
             │                                          │
-            │  MQTT 订阅 ──→ 实时传感器数据展示         │
-            │  MQTT 发布 ──→ 蜂鸣器远程控制             │
-            │  阈值检测  ──→ 本地报警通知推送           │
+            │  REST API ──→ 读取设备影子实时数据        │
+            │  IAM 鉴权 ──→ Token 获取与自动续期       │
+            │  Compose UI ──→ 实时传感器数据展示        │
             └──────────────────────────────────────────┘
 ```
