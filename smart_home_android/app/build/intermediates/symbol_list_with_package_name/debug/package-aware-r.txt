@@ -167,6 +167,7 @@ mipmap ic_billing_off_round
 mipmap ic_billing_on
 mipmap ic_billing_on_round
 mipmap ic_launcher
+mipmap ic_launcher_foreground
 mipmap ic_launcher_round
 string androidx_startup
 string app_name

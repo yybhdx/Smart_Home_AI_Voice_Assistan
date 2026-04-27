@@ -31,7 +31,7 @@
         android:theme="@style/Theme.SmartHomeHuawei"
         android:usesCleartextTraffic="true" >
         <activity
-            android:name="com.smarthome.huawei.MainActivity"
+            android:name="com.smarthome.huawei.LoginActivity"
             android:exported="true"
             android:theme="@style/Theme.SmartHomeHuawei" >
             <intent-filter>
@@ -40,6 +40,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.smarthome.huawei.MainActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SmartHomeHuawei" />
         <activity
             android:name="androidx.activity.ComponentActivity"
             android:exported="true" />

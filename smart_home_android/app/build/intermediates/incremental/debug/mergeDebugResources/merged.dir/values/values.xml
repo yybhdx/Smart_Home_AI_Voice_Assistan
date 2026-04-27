@@ -97,7 +97,7 @@
     <item name="wrapped_composition_tag" type="id"/>
     <integer name="status_bar_notification_info_maxnum">999</integer>
     <string name="androidx_startup" translatable="false">androidx.startup</string>
-    <string name="app_name">智能家居监控</string>
+    <string name="app_name">智能家居 AI 语音助手</string>
     <string name="bottom_sheet_collapse_description">Collapse bottom sheet</string>
     <string name="bottom_sheet_dismiss_description">Dismiss bottom sheet</string>
     <string name="bottom_sheet_drag_handle_description">Drag handle</string>
