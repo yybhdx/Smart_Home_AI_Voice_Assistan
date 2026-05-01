@@ -76,8 +76,8 @@ fun AuthScreen(onLoginSuccess: () -> Unit) {
 
 @Composable
 fun LoginScreen(onLoginSuccess: () -> Unit, onNavigateToRegister: () -> Unit) {
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("2750664768") }
+    var password by remember { mutableStateOf("123456789") }
     var passwordVisible by remember { mutableStateOf(false) }
 
     val context = LocalContext.current

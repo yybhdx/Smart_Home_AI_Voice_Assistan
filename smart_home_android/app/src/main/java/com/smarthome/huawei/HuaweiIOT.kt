@@ -46,6 +46,62 @@ class HuaweiIOT {
     }
 
     /**
+     * 一次性获取设备影子中的所有属性
+     * @return 包含所有属性名和值的Map
+     */
+    fun getAllAttributes(): Map<String, String> {
+        return try {
+            val urlString = "https://${ENDPOINT}/v5/iot/${PROJECT_ID}/devices/${DEVICE_ID}/shadow"
+            Log.d(TAG, "📡 获取全量属性: $urlString")
+
+            val url = URL(urlString)
+            val urlCon = url.openConnection() as HttpURLConnection
+            urlCon.setRequestProperty("Content-Type", "application/json")
+            urlCon.setRequestProperty("X-Auth-Token", token)
+            urlCon.connectTimeout = 5000
+            urlCon.readTimeout = 5000
+            urlCon.connect()
+
+            val reader = BufferedReader(InputStreamReader(urlCon.inputStream))
+            val result = StringBuilder()
+            var line: String?
+            while (reader.readLine().also { line = it } != null) {
+                result.append(line)
+            }
+            reader.close()
+            urlCon.disconnect()
+
+            val response = result.toString()
+            parseAllShadowAttributes(response)
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ 获取全量属性失败: ${e.message}")
+            emptyMap()
+        }
+    }
+
+    /**
+     * 解析影子数据中的所有 reported 属性
+     */
+    private fun parseAllShadowAttributes(jsonStr: String): Map<String, String> {
+        val result = mutableMapOf<String, String>()
+        try {
+            val objectMapper = ObjectMapper()
+            val jsonNode: JsonNode = objectMapper.readValue(jsonStr, JsonNode::class.java)
+
+            // 路径: shadow[0].reported.properties
+            val propertiesNode = jsonNode.get("shadow")?.get(0)?.get("reported")?.get("properties")
+
+            propertiesNode?.fields()?.forEach { entry ->
+                result[entry.key] = entry.value.asText()
+            }
+            Log.d(TAG, "✅ 成功解析 ${result.size} 个属性")
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ JSON解析失败: ${e.message}")
+        }
+        return result
+    }
+
+    /**
      * 获取设备属性（shadow模式）或状态（status模式）
      * @param attribute 属性名称（如：temp, humi, mq-7, hc_sr_501等）
      * @param mode 查询模式："shadow"或"status"
