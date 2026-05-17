@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-Content \"D:\\\\Project\\\\Final_year_project\\\\Smart_Home_AI_Voice_Assistan\\\\毕业论文.md\")",
+      "Bash(Select-Object -Skip 572 -First 90)",
+      "WebSearch",
+      "Bash(Get-ChildItem *)"
+    ]
+  }
+}

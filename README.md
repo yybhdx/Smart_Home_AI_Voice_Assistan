@@ -98,7 +98,28 @@ ESP32-S3 是一颗**双核单片机**（Xtensa LX7，240MHz），搭载 FreeRTOS
 
 ### ESP32-S3 外设与接线
 
-#### I2S 数字麦克风（6 pin）
+#### ESP32-S3 引脚汇总表
+
+| GPIO | 方向 | 功能 | 连接目标 | 供电 |
+|------|------|------|---------|------|
+| GPIO0 | 输入 | BOOT 按键 | 按键（低电平有效） | - |
+| GPIO4 | 输出 | I2S 麦克风 WS | 麦克风 Word Select | - |
+| GPIO5 | 输出 | I2S 麦克风 SCK | 麦克风 Serial Clock | - |
+| GPIO6 | 输入 | I2S 麦克风 SD | 麦克风 Data Out | - |
+| GPIO7 | 输出 | I2S 功放 DIN | 功放 Data In | - |
+| GPIO8 | 输出 | UART1 TX | → STM32 PB11 (USART3 RX) | - |
+| GPIO9 | 输入 | UART1 RX | ← STM32 PB10 (USART3 TX) | - |
+| GPIO15 | 输出 | I2S 功放 BCLK | 功放 Bit Clock | - |
+| GPIO16 | 输出 | I2S 功放 LRCK | 功放 Left/Right Clock | - |
+| GPIO18 | 输出 | 灯控输出 | 外接灯/继电器 | - |
+| GPIO39 | 输入 | 音量减按键 | 按键 | - |
+| GPIO40 | 输入 | 音量加按键 | 按键 | - |
+| GPIO41 | I2C SDA | OLED 显示屏 | SSD1306 SDA | 3.3V |
+| GPIO42 | I2C SCL | OLED 显示屏 | SSD1306 SCL | 3.3V |
+| GPIO47 | 输入 | 触摸按键 | 触摸传感器 | - |
+| GPIO48 | 输出 | WS2812 RGB LED | 板载 RGB LED | - |
+
+#### I2S 数字麦克风（I2S Simplex 输入）
 
 | 麦克风引脚 | ESP32-S3 GPIO | 说明 |
 |-----------|---------------|------|
@@ -109,30 +130,53 @@ ESP32-S3 是一颗**双核单片机**（Xtensa LX7，240MHz），搭载 FreeRTOS
 | VDD | 接 3.3V | 电源 |
 | GND | 接 GND | 地 |
 
-#### I2S 功放模块（7 pin）
+> 采样率：16000 Hz，单声道输入
+
+#### I2S 功放模块（I2S Simplex 输出）
 
 | 功放引脚 | ESP32-S3 GPIO | 说明 |
 |---------|---------------|------|
 | DIN（数据输入） | GPIO7 | I2S Data Out（DOUT） |
 | BCLK（位时钟） | GPIO15 | I2S Bit Clock |
-| LRC（左右声道） | GPIO16 | I2S Left/Right Clock |
-| SD_MODE | 接高电平或悬空 | 芯片使能（高电平=播放模式） |
-| GAIN | 接 GND | 增益选择（硬件跳线） |
-| VIN | 接 5V | 功放电源 |
+| LRCK（左右声道） | GPIO16 | I2S Left/Right Clock |
+| SD_MODE | 接 3.3V | 芯片使能 + 选择左声道（高电平=正常工作） |
+| GAIN | 接 GND | 增益选择（9dB） |
+| VIN | 接 3.3V | 功放电源（音量较 5V 偏小，语音播放够用） |
 | GND | 接 GND | 地 |
 
-#### 其他外设
+> 采样率：24000 Hz。注意：麦克风和功放使用独立的 I2S 实例（Simplex 模式），非全双工
 
-| 外设 | 型号/类型 | 引脚 |
-|------|----------|------|
-| OLED 屏幕 | SSD1306 128x32 (I2C) | SDA=GPIO41, SCL=GPIO42 |
-| LED | WS2812 RGB | GPIO48 |
-| BOOT 按键 | - | GPIO0 |
-| 触摸按键 | - | GPIO47 |
-| 音量+ | - | GPIO40 |
-| 音量- | - | GPIO39 |
-| 灯控输出 | - | GPIO18 |
-| **STM32 串口** | **UART1** | **TX=GPIO8, RX=GPIO9**（STM32 PB10→GPIO9, PB11←GPIO8） |
+#### OLED 显示屏（I2C）
+
+| OLED 引脚 | ESP32-S3 GPIO | 说明 |
+|-----------|---------------|------|
+| SDA | GPIO41 | I2C 数据线 |
+| SCL | GPIO42 | I2C 时钟线 |
+| VDD | 接 3.3V | 电源 |
+| GND | 接 GND | 地 |
+
+> 型号：SSD1306，128x32（可通过 sdkconfig 切换 128x64），I2C 地址 0x3C，X/Y 轴镜像显示
+
+#### 按键与 LED
+
+| 外设 | 引脚 | 说明 |
+|------|------|------|
+| BOOT 按键 | GPIO0 | 低电平有效，首次烧录需按下 |
+| 触摸按键 | GPIO47 | 电容触摸 |
+| 音量+ | GPIO40 | 按键输入 |
+| 音量- | GPIO39 | 按键输入 |
+| WS2812 RGB LED | GPIO48 | 板载可编程 RGB 指示灯 |
+| 灯控输出 | GPIO18 | 外接灯光控制 |
+
+#### STM32 串口通信（UART1）
+
+| ESP32-S3 | 方向 | STM32F103 | 说明 |
+|----------|------|-----------|------|
+| GPIO8 (TX) | → | PB11 (USART3 RX) | ESP32 发送，STM32 接收 |
+| GPIO9 (RX) | ← | PB10 (USART3 TX) | STM32 发送，ESP32 接收 |
+| GND | ─ | GND | 共地（必须连接） |
+
+> 波特率 115200，8N1，缓冲区 1024 字节。GPIO8/9 避开了麦克风引脚 GPIO4/5/6
 
 ### STM32F103 外设
 
@@ -344,25 +388,27 @@ wifi:Set ps type: 0, coexist: 0
   DHT11 ────┤ PA8         温湿度                      │
   HC-SR501 ─┤ PA0         人体红外                    │
   MQ-7 ─────┤ PA1 (ADC)   CO 气体                     │
-  OLED ─────┤ PB8/PB9      显示屏                     │
-  蜂鸣器 ───┤ PB12         报警                        │
+  OLED ─────┤ PB8(SCL)/PB9(SDA)  显示屏(软件I2C)     │
+  蜂鸣器 ───┤ PB12         报警(低电平触发)            │
             │                                          │
             │ PB10 (TX) ────────────→ ESP32 GPIO9 (RX) │
             │ PB11 (RX) ←──────────── ESP32 GPIO8 (TX) │
             │ GND ──────────────────── GND             │
             └──────────────────────────────────────────┘
                             ↕
-            ┌─────────────── ESP32-S3 ────────────────┐
-            │                                          │
-  麦克风 ───┤ GPIO4/5/6    I2S 数字输入               │
-  扬声器 ───┤ GPIO7/15/16  I2S 功放输出               │
-  OLED ─────┤ GPIO41/42    I2C 显示屏                 │
-  LED ──────┤ GPIO48       WS2812 RGB                 │
-  按键 ─────┤ GPIO0/47/39/40  控制                    │
-            │                                          │
-            │            WiFi ────→ 华为云 IoT          │
-            │            WiFi ────→ 小智 AI 服务器      │
-            └──────────────────────────────────────────┘
+            ┌─────────────── ESP32-S3 ────────────────────────────┐
+            │                                                      │
+  麦克风 ───┤ GPIO4(WS)/GPIO5(SCK)/GPIO6(SD)  I2S 数字输入 3.3V   │
+  功放 ─────┤ GPIO7(DIN)/GPIO15(BCLK)/GPIO16(LRCK)  I2S 输出 5V  │
+  OLED ─────┤ GPIO41(SDA)/GPIO42(SCL)  I2C 显示屏 3.3V          │
+  RGB LED ──┤ GPIO48       WS2812 RGB 指示灯                     │
+  灯控 ─────┤ GPIO18       外接灯光控制                          │
+  按键 ─────┤ GPIO0(BOOT)/GPIO47(触摸)/GPIO39/40(音量)           │
+  STM32 ────┤ GPIO8(TX→PB11)/GPIO9(RX←PB10)  UART1 115200      │
+            │                                                      │
+            │            WiFi ────→ 华为云 IoT (MQTT 1883)        │
+            │            WiFi ────→ 小智 AI 服务器 (WebSocket)    │
+            └──────────────────────────────────────────────────────┘
                             ↕
             ┌─────────────── 华为云 IoTDA ─────────────┐
             │                                          │
