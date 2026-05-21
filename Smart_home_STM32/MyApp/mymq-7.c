@@ -46,7 +46,7 @@ void mq7_task(void)
 //	buzzer_bit1 = 1;
 //  }
  
-   if( (mq7_adc_value >= 2000))
+   if( (mq7_adc_value >= 2500))
   {
 	buzzer_bit1 = 1;
   }

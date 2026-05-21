@@ -3,7 +3,7 @@
 <title>Static Call Graph - [Smart home\Smart home.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image Smart home\Smart home.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Wed Apr 08 18:56:28 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Thu May 21 10:24:44 2026
 <BR><P>
 <H3>Maximum Stack Usage =        656 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -919,8 +919,8 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[35]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[8b]"></a>MX_GPIO_Init</STRONG> (Thumb, 176 bytes, Stack size 56 bytes, gpio.o(i.MX_GPIO_Init))
-<BR><BR>[Stack]<UL><LI>Max Depth = 96<LI>Call Chain = MX_GPIO_Init &rArr; HAL_GPIO_Init
+<P><STRONG><a name="[8b]"></a>MX_GPIO_Init</STRONG> (Thumb, 194 bytes, Stack size 48 bytes, gpio.o(i.MX_GPIO_Init))
+<BR><BR>[Stack]<UL><LI>Max Depth = 88<LI>Call Chain = MX_GPIO_Init &rArr; HAL_GPIO_Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[59]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_WritePin
 <LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_Init
@@ -983,7 +983,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[93]"></a>OLED_I2C_Init</STRONG> (Thumb, 32 bytes, Stack size 8 bytes, myoled.o(i.OLED_I2C_Init))
-<BR><BR>[Stack]<UL><LI>Max Depth = 104<LI>Call Chain = OLED_I2C_Init &rArr; MX_GPIO_Init &rArr; HAL_GPIO_Init
+<BR><BR>[Stack]<UL><LI>Max Depth = 96<LI>Call Chain = OLED_I2C_Init &rArr; MX_GPIO_Init &rArr; HAL_GPIO_Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[59]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_WritePin
 <LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_GPIO_Init
@@ -1019,7 +1019,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[97]"></a>OLED_Init</STRONG> (Thumb, 172 bytes, Stack size 8 bytes, myoled.o(i.OLED_Init))
-<BR><BR>[Stack]<UL><LI>Max Depth = 112<LI>Call Chain = OLED_Init &rArr; OLED_I2C_Init &rArr; MX_GPIO_Init &rArr; HAL_GPIO_Init
+<BR><BR>[Stack]<UL><LI>Max Depth = 104<LI>Call Chain = OLED_Init &rArr; OLED_I2C_Init &rArr; MX_GPIO_Init &rArr; HAL_GPIO_Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;OLED_Clear
 <LI><a href="#[98]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;OLED_WriteCommand
@@ -1240,7 +1240,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[35]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[b2]"></a>esp_report</STRONG> (Thumb, 150 bytes, Stack size 48 bytes, esp32-s3.o(i.esp_report))
+<P><STRONG><a name="[b2]"></a>esp_report</STRONG> (Thumb, 152 bytes, Stack size 48 bytes, esp32-s3.o(i.esp_report))
 <BR><BR>[Stack]<UL><LI>Max Depth = 656<LI>Call Chain = esp_report &rArr; my_printf &rArr; HAL_UART_Transmit &rArr; UART_WaitOnFlagUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;my_printf
@@ -1250,11 +1250,10 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[35]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[b5]"></a>hc_sr501_task</STRONG> (Thumb, 38 bytes, Stack size 8 bytes, hc-sr501.o(i.hc_sr501_task))
-<BR><BR>[Stack]<UL><LI>Max Depth = 616<LI>Call Chain = hc_sr501_task &rArr; my_printf &rArr; HAL_UART_Transmit &rArr; UART_WaitOnFlagUntilTimeout
+<P><STRONG><a name="[b5]"></a>hc_sr501_task</STRONG> (Thumb, 26 bytes, Stack size 8 bytes, hc-sr501.o(i.hc_sr501_task))
+<BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = hc_sr501_task
 </UL>
-<BR>[Calls]<UL><LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;my_printf
-<LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_ReadPin
+<BR>[Calls]<UL><LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_ReadPin
 </UL>
 <BR>[Called By]<UL><LI><a href="#[35]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
@@ -1283,7 +1282,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> entry9a.o(.ARM.Collect$$$$0000000B)
 </UL>
-<P><STRONG><a name="[b6]"></a>mq7_task</STRONG> (Thumb, 190 bytes, Stack size 24 bytes, mymq-7.o(i.mq7_task))
+<P><STRONG><a name="[b6]"></a>mq7_task</STRONG> (Thumb, 192 bytes, Stack size 24 bytes, mymq-7.o(i.mq7_task))
 <BR><BR>[Stack]<UL><LI>Max Depth = 632<LI>Call Chain = mq7_task &rArr; my_printf &rArr; HAL_UART_Transmit &rArr; UART_WaitOnFlagUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_ADC_Start
@@ -1310,7 +1309,6 @@ Global Symbols
 <LI><a href="#[bc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vsnprintf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mq7_task
-<LI><a href="#[b5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;hc_sr501_task
 <LI><a href="#[b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;esp_report
 <LI><a href="#[b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dht11_task
 <LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Buzzer_Task

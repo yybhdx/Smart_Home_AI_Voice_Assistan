@@ -9,19 +9,22 @@ uint8_t hc_sr501_value = 0;
 
 void hc_sr501_task(void)
 {
+  // ç”±äº main å¾ªç¯ä¸­æœ‰ HAL_Delay(1000)ï¼Œé‡‡æ ·é¢‘ç‡è¾ƒä½
+  // é‡‡æ ·å³ç¡®è®¤ï¼Œä»¥ä¿è¯å“åº”çµæ•åº¦
+  uint8_t current_pin_state = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0);
 	
-  // ÓĞÈËÊ±Îª¸ßµçÆ½£¬Ã»ÈËÊ±ÎªµÍµçÆ½£¬ËùÒÔÊ¹ÓÃÏÂÀ­µç×è
-  hc_sr501_value = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0);
-	
-  if(hc_sr501_value == 1)
+  if(current_pin_state == 1)
   {
-	buzzer_bit2 = 1;
-   }
+    hc_sr501_value = 1;
+    buzzer_bit2 = 1;
+  }
   else
   {
-	buzzer_bit2 = 0;
+    hc_sr501_value = 0;
+    buzzer_bit2 = 0;
   }
   
-  my_printf(&huart1, "hc_sr501_value = %d\r\n",hc_sr501_value);
-  
+  // è°ƒè¯•è¾“å‡º
+  // my_printf(&huart1, "hc_sr501_value = %d\r\n", hc_sr501_value);
 }
+
