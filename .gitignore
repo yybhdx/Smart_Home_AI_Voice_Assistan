@@ -1,0 +1,16 @@
+.claude/
+硬件/
+论文/
+
+# Build and IDE files
+**/build/
+**/*.axf
+**/*.build_log.htm
+**/*.htm
+**/*.dep
+**/*.crf
+**/*.o
+**/*.uvguix.*
+.eide/
+VSCODE_EIDE/
+RTE_Components.h

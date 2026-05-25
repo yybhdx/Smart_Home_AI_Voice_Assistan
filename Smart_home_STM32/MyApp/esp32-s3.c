@@ -53,8 +53,6 @@ void esp_report(void)
     beep_status = (buzzer_bit1 || buzzer_bit2) ? 1 : 0;
 
     // 构造JSON负载
-    // 注意: AT指令中的双引号需要转义为 \"
-    // 简化后的 JSON 构造 (不再需要转义反斜杠，不再需要 AT 指令包裹)
     sprintf(payload,
             "{\"services\":[{\"service_id\":\"%s\","
             "\"properties\":{"

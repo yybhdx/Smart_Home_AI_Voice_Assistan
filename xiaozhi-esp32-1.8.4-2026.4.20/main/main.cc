@@ -14,10 +14,10 @@
 
 extern "C" void app_main(void)
 {
-    // Initialize the default event loop
+    // 初始化默认事件循环
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 
-    // Initialize NVS flash for WiFi configuration
+    // 初始化NVS闪存以进行WiFi配置
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         ESP_LOGW(TAG, "Erasing NVS flash to fix corruption");
@@ -26,9 +26,9 @@ extern "C" void app_main(void)
     }
     ESP_ERROR_CHECK(ret);
 
-    // Start STM32 UART + Huawei Cloud task (waits for WiFi internally)
+    // 启动STM32UART+华为云任务
     xTaskCreate(stm32_uart_task, "stm32_task", 4096, NULL, 5, NULL);
 
-    // Launch xiaozhi application (blocks here)
+    // 启动小智应用程序(在此处阻塞)
     Application::GetInstance().Start();
 }
