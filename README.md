@@ -1,8 +1,8 @@
 ﻿# 智能家居 AI 语音助手
 
-**当前版本：v1.0.1 (论文正式版本)**
+**当前版本：v1.1.0 (FreeRTOS 多任务版本)**
 
-基于 ESP32-S3 双核单片机的智能家居系统，融合了小智 AI 语音交互、传感器数据采集上传、以及 Android 移动端 APP 远程监控功能。
+基于 ESP32-S3 双核单片机的智能家居系统，融合了小智 AI 语音交互、传感器数据采集上传、以及 Android 移动端 APP 远程监控功能。STM32 端采用 **FreeRTOS 实时操作系统**，实现多任务并发调度。
 
 ## 项目概述
 
@@ -10,7 +10,7 @@
 
 | 模块 | 主控/平台 | 功能 |
 |------|----------|------|
-| **传感器采集** | STM32F103 | 读取温湿度、人体红外、CO 气体传感器数据，通过串口发送给 ESP32-S3 |
+| **传感器采集** | STM32F103 + FreeRTOS | 多任务并发采集温湿度、人体红外、CO 气体传感器数据，OLED 显示，蜂鸣器报警，通过串口发送给 ESP32-S3 |
 | **AI 语音 + 云端上传** | ESP32-S3 | 运行小智 AI 实现语音交互，同时接收 STM32 数据并上传至华为云 IoT 平台 |
 | **移动端监控 APP** | Android (Kotlin + Jetpack Compose) | 通过华为云 IoTDA REST API 实时读取传感器数据，远程监控设备状态 |
 
@@ -26,11 +26,12 @@ Smart_Home_AI_Voice_Assistan/
 ├── 华为云数据格式.txt                   ← 华为云物模型数据格式定义
 ├── ESP32-S3配置文件/                   ← ESP32-S3 编译所需的 sdkconfig 配置文件
 │   └── sdkconfig                      ← 需在编译前复制到 xiaozhi-esp32 工程根目录
-├── Smart_home_STM32/                  ← STM32F103 传感器采集工程
-│   ├── Core/                          ← STM32 HAL 库核心代码
-│   ├── MyApp/                         ← 传感器驱动（DHT11、HC-SR501、MQ-7、OLED、蜂鸣器）
+├── Smart_home_STM32/                  ← STM32F103 传感器采集工程 (FreeRTOS)
+│   ├── Core/                          ← STM32 HAL 库核心代码 + FreeRTOS 任务定义
+│   ├── MyApp/                         ← 传感器驱动（DHT11、HC-SR501、MQ-7、OLED、蜂鸣器、ESP32通信）
+│   ├── Middlewares/                   ← FreeRTOS 内核源码 (V10.3.1)
 │   ├── MDK-ARM/                       ← Keil 工程文件
-│   └── Smart home.ioc                 ← STM32CubeMX 配置文件
+│   └── Smart home.ioc                 ← STM32CubeMX 配置文件（含 FreeRTOS 中间件）
 ├── xiaozhi-esp32-1.8.4-2026.4.20/    ← ESP32-S3 主工程（小智AI + 传感器 + 华为云）
 │   └── main/
 │       ├── stm32_uart.c/h            ← STM32 串口通信 + 数据上传任务
@@ -93,6 +94,63 @@ ESP32-S3 是一颗**双核单片机**（Xtensa LX7，240MHz），搭载 FreeRTOS
 - 语音任务优先级高，确保实时响应
 - 传感器上传任务大部分时间处于阻塞等待状态，不占用 CPU 资源
 - 两个核心各司其职，互不干扰
+
+## STM32 FreeRTOS 多任务架构
+
+STM32F103 端运行 **FreeRTOS 实时操作系统 (V10.3.1)**，使用 CMSIS-RTOS V2 API，采用**抢占式调度**，将传感器采集、显示、报警、通信等功能拆分为 7 个独立任务并发执行。
+
+```
+┌─────────────────────────────────────────────────────────┐
+│           STM32F103 + FreeRTOS (CMSIS-RTOS V2)          │
+│         抢占式调度 | Tick=1000Hz | 堆=10240字节          │
+│                   | heap_4 内存管理                      │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│   ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐  │
+│   │ dht11    │ │   OLED   │ │   MQ7    │ │HC_SR_501 │  │
+│   │ 温湿度   │ │ 数据显示 │ │ CO检测   │ │ 人体检测  │  │
+│   │ 1024B    │ │ 1024B    │ │ 1024B    │ │ 1024B    │  │
+│   │ Normal   │ │ Normal   │ │ Normal   │ │ AboveNorm │  │
+│   └──────────┘ └──────────┘ └──────────┘ └──────────┘  │
+│                                                          │
+│   ┌──────────┐ ┌──────────┐ ┌──────────┐               │
+│   │ Buzzer   │ │ esp32上报│ │ LED闪烁  │               │
+│   │ 蜂鸣器   │ │ 华为云   │ │ 心跳指示  │               │
+│   │ 1024B    │ │ 1024B    │ │ 512B     │               │
+│   │ AboveNorm│ │ AboveNorm│ │ Normal   │               │
+│   └──────────┘ └──────────┘ └──────────┘               │
+│                                                          │
+│   时序保护: DHT11/MQ7 任务使用 vTaskSuspendAll 防止      │
+│   上下文切换打乱微秒级传感器通信时序                       │
+└─────────────────────────────────────────────────────────┘
+```
+
+### 任务详情
+
+| 任务 | 函数 | 功能 | 栈 | 优先级 | 周期 |
+|------|------|------|-----|--------|------|
+| dht11 | `dht11_task` | 读取 DHT11 温湿度，挂起调度器保护单总线时序 | 1024B | Normal | 2s |
+| OLED | `oled_task` | 显示温湿度/ADC/PPM/人体检测/CO警告 | 1024B | Normal | 500ms |
+| MQ7 | `mq7_task` | ADC 读取 MQ-7，计算 PPM 浓度，超阈值触发报警 | 1024B | Normal | 500ms |
+| HC_SR_501 | `hc_sr501_task` | 读取 PA0 电平检测人体，联动蜂鸣器 | 1024B | AboveNormal | 200ms |
+| Buzzer | `Buzzer_Task` | CO 超标或检测到人时蜂鸣器报警 | 1024B | AboveNormal | 100ms |
+| esp_report | `esp_report` | 构造 JSON 通过 UART3 发送给 ESP32-S3 | 1024B | AboveNormal | 1s |
+| defaultTask | `StartDefaultTask` | 板载 LED (PC13) 心跳闪烁 | 512B | Normal | 500ms |
+
+### 报警联动逻辑
+
+```
+MQ-7 ADC >= 2500 ──→ buzzer_bit1 = 1 ─┐
+                                       ├──→ 任一为1 ──→ 蜂鸣器响
+HC-SR501 检测到人 ──→ buzzer_bit2 = 1 ─┘
+```
+
+### 关键设计决策
+
+- **vTaskSuspendAll 而非 taskENTER_CRITICAL**：DHT11 读取期间需要 `HAL_Delay()`（依赖 SysTick 中断），因此只能挂起调度器而不能关中断
+- **栈大小分配**：调用 `my_printf`（含 vsnprintf）的任务至少需要 1024 字节栈，纯 GPIO 任务 512 字节
+- **堆大小 10240 字节**：7 个任务 + FreeRTOS Timer/Idle 任务的总需求约 7KB，留有余量
+- **优先级划分**：安全相关任务（人体检测、蜂鸣器、数据上报）设为 AboveNormal，确保及时响应
 
 ## 硬件清单
 
@@ -180,14 +238,15 @@ ESP32-S3 是一颗**双核单片机**（Xtensa LX7，240MHz），搭载 FreeRTOS
 
 ### STM32F103 外设
 
-| 外设 | 型号 | 引脚 |
-|------|------|------|
-| 温湿度传感器 | DHT11 | PA8 |
-| 人体红外传感器 | HC-SR501 | PA0 |
-| CO 气体传感器 | MQ-7 | PA1 (ADC) |
-| OLED 显示屏 | SSD1306 | PB8(SCL), PB9(SDA) |
-| 蜂鸣器 | 有源蜂鸣器 | PB12 |
-| ESP32 串口 | USART3 | PB10(TX), PB11(RX) |
+| 外设 | 型号 | 引脚 | FreeRTOS 任务 |
+|------|------|------|--------------|
+| 温湿度传感器 | DHT11 | PA8 | dht11_task |
+| 人体红外传感器 | HC-SR501 | PA0 | hc_sr501_task |
+| CO 气体传感器 | MQ-7 | PA1 (ADC) | mq7_task |
+| OLED 显示屏 | SSD1306 | PB8(SCL), PB9(SDA) | oled_task |
+| 蜂鸣器 | 有源蜂鸣器 | PB12 | Buzzer_Task |
+| ESP32 串口 | USART3 | PB10(TX), PB11(RX) | esp_report |
+| 板载 LED | - | PC13 | StartDefaultTask |
 
 ## 接线方式
 
@@ -361,6 +420,8 @@ idf.py -p COM8 flash monitor
 
 使用 Keil MDK-ARM 打开 `Smart_home_STM32/MDK-ARM/Smart home.uvprojx`，编译并下载。
 
+> **FreeRTOS 配置**：FreeRTOS 参数在 `Core/Inc/FreeRTOSConfig.h` 中配置，任务定义在 `Core/Src/freertos.c` 中。STM32CubeMX 配置文件 `.ioc` 已包含 FreeRTOS 中间件，重新生成代码时请勿覆盖 `freertos.c` 中的用户代码。
+
 ### Android APP 编译运行
 
 > **重要**：编译前，必须将 `APP配置参数.txt` 中的配置参数填入 `HuaweiIOT.kt` 文件的对应常量中，包括华为账号名、IAM 用户名、IAM 密码、项目ID、设备ID 等。
@@ -374,7 +435,9 @@ idf.py -p COM8 flash monitor
 ## 技术要点
 
 - **双核并行**：ESP32-S3 的两个核心分别处理语音交互和传感器数据上传，互不干扰
-- **非阻塞设计**：stm32_task 大部分时间处于阻塞状态（等待串口数据/延时），不会影响语音任务的实时性
+- **STM32 FreeRTOS 多任务**：7 个独立任务并发运行，抢占式调度 + 时间片轮转，堆管理使用 heap_4 方案
+- **时序保护**：DHT11 单总线协议对微秒级时序敏感，通过 `vTaskSuspendAll()` 挂起调度器保护通信时序（不关中断，HAL_Delay 正常工作）
+- **非阻塞设计**：ESP32-S3 的 stm32_task 大部分时间处于阻塞状态（等待串口数据/延时），不会影响语音任务的实时性
 - **独立 MQTT 通道**：华为云 MQTT 与小智 AI 的通信协议互不干扰，各自维护独立的连接
 - **串口引脚选择**：STM32 串口使用 GPIO8/9（UART1），避开了小智 AI 的麦克风引脚 GPIO4/5/6
 - **APP 数据获取方式**：Android APP 通过华为云 IoTDA 设备影子 REST API 获取数据（非 MQTT），解决了 Flutter MQTT 客户端兼容性问题

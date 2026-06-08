@@ -1,24 +1,46 @@
+/**
+ * @file    esp32-s3.h
+ * @brief   ESP32-S3 WiFi Ä£¿éÍ¨ĞÅÇı¶¯Í·ÎÄ¼ş£¨»ªÎªÔÆ IoT Êı¾İÉÏ±¨£©
+ * @details ¶¨Òå ESP32-S3 Í¨ĞÅËùĞèµÄ WiFi Á¬½Ó²ÎÊı¡¢»ªÎªÔÆ IoT Æ½Ì¨ MQTT Á¬½Ó²ÎÊı£¬
+ *          ÒÔ¼°Êı¾İÉÏ±¨ÈÎÎñµÄº¯ÊıÉùÃ÷¡£
+ *
+ * @note    Êı¾İÉÏ±¨Á÷³Ì£º
+ *          STM32 ²É¼¯´«¸ĞÆ÷Êı¾İ -> UART3 ·¢ËÍ JSON -> ESP32-S3 ½ÓÊÕ ->
+ *          MQTT Ğ­Òé -> »ªÎªÔÆ IoTDA Æ½Ì¨
+ *
+ * @note    MQTT Í¨ĞÅ²ÎÊıËµÃ÷£º
+ *          - Ê¹ÓÃ TLS ¼ÓÃÜÁ¬½Ó£¬¶Ë¿Ú 8883
+ *          - Éè±¸ÈÏÖ¤·½Ê½£ºÉè±¸ÃÜÔ¿£¨Secret£©
+ *          - ÉÏ±¨ Topic£º$oc/devices/{device_id}/sys/properties/report
+ */
+
 #ifndef ESP32_S3_H
 #define ESP32_S3_H
 
 #include <stdint.h>
 
-// Wi-Fi è¿æ¥å‚æ•°
-#define WIFI_SSID "jifei"      // Wi-Fi çƒ­ç‚¹åç§°
-#define WIFI_PWD "12345678"    // Wi-Fi å¯†ç 
+/* ======================== WiFi Á¬½Ó²ÎÊı ======================== */
 
-// åä¸ºäº‘ç‰©è”ç½‘å¹³å° MQTT è¿æ¥å‚æ•°
-#define HUAWEI_DEVICE_ID "69ce6bd8e094d615922d9e08_Smart_Home"
-#define HUAWEI_MQTT_USERNAME "69ce6bd8e094d615922d9e08_Smart_Home"
-#define HUAWEI_MQTT_PASSWORD "b859e0be5c2f5ed05ec764914e485d1204b37bb341afe10c91d4a9c8dae43a19"
-#define HUAWEI_MQTT_ClientID "69ce6bd8e094d615922d9e08_Smart_Home_0_0_2026040213"
-#define HUAWEI_MQTT_ADDRESS "52e4e17470.st1.iotda-device.cn-east-3.myhuaweicloud.com"
-#define HUAWEI_MQTT_PORT "8883"
-#define HUAWEI_SERVICE_ID "Smart_Home"
-#define HUAWEI_MQTT_PUBLISH_TOPIC "$oc/devices/" HUAWEI_DEVICE_ID "/sys/properties/report"
+#define WIFI_SSID "jifei"      ///< WiFi ÈÈµãÃû³Æ£¨SSID£©
+#define WIFI_PWD "12345678"    ///< WiFi ÃÜÂë
 
+/* ======================== »ªÎªÔÆ IoT Æ½Ì¨ MQTT Á¬½Ó²ÎÊı ======================== */
 
-// ä¸ŠæŠ¥ä¼ æ„Ÿå™¨æ•°æ®åˆ°åä¸ºäº‘
-void esp_report(void);
+#define HUAWEI_DEVICE_ID "69ce6bd8e094d615922d9e08_Smart_Home"                   ///< Éè±¸ID£¬ÔÚ»ªÎªÔÆ IoTDA ¿ØÖÆÌ¨×¢²áÉè±¸Ê±Éú³É
+#define HUAWEI_MQTT_USERNAME "69ce6bd8e094d615922d9e08_Smart_Home"               ///< MQTT ÓÃ»§Ãû£¬Í¨³£ÓëÉè±¸IDÏàÍ¬
+#define HUAWEI_MQTT_PASSWORD "b859e0be5c2f5ed05ec764914e485d1204b37bb341afe10c91d4a9c8dae43a19"  ///< MQTT ÃÜÂë£¬ÓÉ»ªÎªÔÆ IoTDA Éú³É
+#define HUAWEI_MQTT_ClientID "69ce6bd8e094d615922d9e08_Smart_Home_0_0_2026040213" ///< MQTT ¿Í»§¶ËID£¬°üº¬Éè±¸IDºÍÊ±¼ä´Á
+#define HUAWEI_MQTT_ADDRESS "52e4e17470.st1.iotda-device.cn-east-3.myhuaweicloud.com" ///< MQTT ·şÎñÆ÷µØÖ·£¨»ªÎªÔÆ»ª¶«3Çø£©
+#define HUAWEI_MQTT_PORT "8883"                  ///< MQTT TLS ¼ÓÃÜ¶Ë¿Ú
+#define HUAWEI_SERVICE_ID "Smart_Home"           ///< ·şÎñID£¬¶ÔÓ¦»ªÎªÔÆ IoTDA ²úÆ·Ä£ĞÍÖĞ¶¨ÒåµÄ·şÎñ
+#define HUAWEI_MQTT_PUBLISH_TOPIC "$oc/devices/" HUAWEI_DEVICE_ID "/sys/properties/report"  ///< Éè±¸ÊôĞÔÉÏ±¨ Topic
+
+/**
+ * @brief  ´«¸ĞÆ÷Êı¾İÉÏ±¨»ªÎªÔÆ IoT Æ½Ì¨ FreeRTOS ÈÎÎñ
+ * @param  argument ÈÎÎñ²ÎÊı£¨Î´Ê¹ÓÃ£©
+ * @note   ÒÔÔ¼ 2 ÃëÎªÖÜÆÚ£¬²É¼¯ËùÓĞ´«¸ĞÆ÷Êı¾İ²¢°´ JSON ¸ñÊ½Í¨¹ı UART3 ·¢ËÍ¸ø ESP32-S3£¬
+ *         ÓÉ ESP32-S3 ¸ºÔğÓë»ªÎªÔÆ IoT Æ½Ì¨µÄ MQTT Í¨ĞÅ
+ */
+void esp_report(void * argument);
 
 #endif

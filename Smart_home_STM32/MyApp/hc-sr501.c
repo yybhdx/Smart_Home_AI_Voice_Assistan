@@ -1,30 +1,79 @@
+/**
+ * @file    hc-sr501.c
+ * @brief   HC-SR501 ÈËÌåºìÍâ¸ĞÓ¦´«¸ĞÆ÷Çı¶¯
+ * @details »ùÓÚ FreeRTOS ÈÎÎñÊµÏÖÈËÌå¼ì²â¹¦ÄÜ£¬Í¨¹ı¶ÁÈ¡ GPIO µçÆ½ÅĞ¶ÏÊÇ·ñÓĞÈË£¬
+ *          ²¢Áª¶¯·äÃùÆ÷½øĞĞ±¨¾¯¡£
+ *
+ * @note    Ó²¼şÁ¬½Ó£º
+ *          - HC-SR501 OUT -> PA0 (GPIO_INPUT)
+ *          - VCC -> 5V, GND -> GND
+ *          - Êä³ö¸ßµçÆ½(1)±íÊ¾¼ì²âµ½ÈËÌå£¬µÍµçÆ½(0)±íÊ¾ÎŞÈË
+ */
+
 #include "hc-sr501.h"
 #include "gpio.h"
 #include "usart.h"
 #include "myoled.h"
 
+#include "FreeRTOS.h"
+#include "task.h"
+#include "main.h"
+#include "cmsis_os.h"
+
+/**
+ * @brief  ·äÃùÆ÷±¨¾¯±êÖ¾Î»2£¨À´×Ô HC-SR501 ÈËÌåºìÍâ¼ì²â£©
+ * @note   ÔÚ buzzer.c ÖĞ¶¨Òå£¬´Ë´¦ÉùÃ÷Îª extern ÒıÓÃ
+ *         µ± buzzer_bit2 = 1 Ê±£¬±íÊ¾¼ì²âµ½ÈËÌå£¬·äÃùÆ÷½«´¥·¢±¨¾¯
+ */
 extern uint8_t buzzer_bit2;
 
+/**
+ * @brief  HC-SR501 ÈËÌåºìÍâ¼ì²â½á¹û
+ * @note   È«¾Ö±äÁ¿£¬¹©ÆäËûÄ£¿é¶ÁÈ¡
+ *         - 0: Î´¼ì²âµ½ÈËÌå
+ *         - 1: ¼ì²âµ½ÈËÌå
+ */
 uint8_t hc_sr501_value = 0;
 
-void hc_sr501_task(void)
+/**
+ * @brief  HC-SR501 ÈËÌåºìÍâ¼ì²â FreeRTOS ÈÎÎñ
+ *
+ * @param  argument ÈÎÎñ²ÎÊı£¨Î´Ê¹ÓÃ£¬FreeRTOS ÈÎÎñº¯ÊıÇ©ÃûÒªÇó£©
+ * @retval ÎŞ£¨ËÀÑ­»·ÈÎÎñ£¬ÓÀ²»·µ»Ø£©
+ *
+ * @details ÈÎÎñÒÔÔ¼ 200ms ÎªÖÜÆÚÂÖÑ¯ PA0 Òı½ÅµçÆ½£º
+ *          - PA0 = ¸ßµçÆ½(1)£º¼ì²âµ½ÈËÌå£¬ÉèÖÃ hc_sr501_value = 1£¬
+ *            Í¬Ê±½« buzzer_bit2 ÖÃ1£¬Áª¶¯·äÃùÆ÷±¨¾¯
+ *          - PA0 = µÍµçÆ½(0)£ºÎ´¼ì²âµ½ÈËÌå£¬ÇåÁã hc_sr501_value ºÍ buzzer_bit2£¬
+ *            ·äÃùÆ÷»Ö¸´Õı³£
+ *
+ * @note   ²ÉÓÃ osDelay(100) ÊµÏÖ 200ms ÂÖÑ¯ÖÜÆÚ£¨CMSIS-RTOS V2 µÄ osDelay
+ *         ²ÎÊıµ¥Î»Îª RTOS tick£¬Ä¬ÈÏ 1 tick = 2ms£¨Èç¹û configTICK_RATE_HZ=500£©£¬
+ *         Òò´Ë 100 ticks Ô¼Îª 200ms£©
+ */
+void hc_sr501_task(void *argument)
 {
-  // ç”±äº main å¾ªç¯ä¸­æœ‰ HAL_Delay(1000)ï¼Œé‡‡æ ·é¢‘ç‡è¾ƒä½
-  // é‡‡æ ·å³ç¡®è®¤ï¼Œä»¥ä¿è¯å“åº”çµæ•åº¦
-  uint8_t current_pin_state = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0);
-	
-  if(current_pin_state == 1)
+  while (1)
   {
-    hc_sr501_value = 1;
-    buzzer_bit2 = 1;
-  }
-  else
-  {
-    hc_sr501_value = 0;
-    buzzer_bit2 = 0;
-  }
-  
-  // è°ƒè¯•è¾“å‡º
-  // my_printf(&huart1, "hc_sr501_value = %d\r\n", hc_sr501_value);
-}
+    /* ¶ÁÈ¡ PA0 Òı½ÅµçÆ½£¬»ñÈ¡ HC-SR501 µ±Ç°Êä³ö×´Ì¬ */
+    uint8_t current_pin_state = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0);
 
+    if (current_pin_state == 1)
+    {
+      /* ¼ì²âµ½ÈËÌåºìÍâĞÅºÅ */
+      hc_sr501_value = 1;   // ¸üĞÂÈ«¾Ö¼ì²â×´Ì¬
+      buzzer_bit2 = 1;      // ÖÃÎ»·äÃùÆ÷±¨¾¯±êÖ¾£¬´¥·¢·äÃùÆ÷
+    }
+    else
+    {
+      /* Î´¼ì²âµ½ÈËÌå */
+      hc_sr501_value = 0;   // Çå³ı¼ì²â×´Ì¬
+      buzzer_bit2 = 0;      // Çå³ı·äÃùÆ÷±¨¾¯±êÖ¾
+    }
+
+    // µ÷ÊÔÊä³ö£¨Ä¬ÈÏ¹Ø±Õ£¬È¡Ïû×¢ÊÍ¿ÉÆôÓÃ´®¿Úµ÷ÊÔ´òÓ¡£©
+    // my_printf(&huart1, "hc_sr501_value = %d\r\n", hc_sr501_value);
+
+    osDelay(100); // ÑÓÊ±Ô¼ 200ms£¬½øÈëÏÂÒ»´ÎÂÖÑ¯
+  }
+}

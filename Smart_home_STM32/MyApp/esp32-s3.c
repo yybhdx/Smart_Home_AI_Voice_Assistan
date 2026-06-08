@@ -1,3 +1,19 @@
+/**
+ * @file    esp32-s3.c
+ * @brief   ESP32-S3 WiFi Ä£¿éÍ¨ĞÅÇı¶¯£¨»ªÎªÔÆ IoT Êı¾İÉÏ±¨£©
+ * @details Í¨¹ı UART3 Óë ESP32-S3 Í¨ĞÅ£¬½«´«¸ĞÆ÷²É¼¯µÄÊı¾İ°´ JSON ¸ñÊ½
+ *          ´ò°üºó·¢ËÍ¸ø ESP32-S3£¬ÓÉ ESP32-S3 Í¨¹ı MQTT Ğ­ÒéÉÏ±¨ÖÁ»ªÎªÔÆ IoT Æ½Ì¨¡£
+ *
+ * @note    Ó²¼şÁ¬½Ó£º
+ *          - STM32 UART3 TX (PB10) -> ESP32-S3 RX
+ *          - STM32 UART3 RX (PB11) -> ESP32-S3 TX
+ *          - ¹²µØ GND
+ *
+ * @note    Êı¾İÁ÷Ïò£º
+ *          STM32 ´«¸ĞÆ÷²É¼¯ -> JSON ¸ñÊ½»¯ -> UART3 ·¢ËÍ ->
+ *          ESP32-S3 ½ÓÊÕ -> WiFi/MQTT -> »ªÎªÔÆ IoT Æ½Ì¨
+ */
+
 #include "esp32-s3.h"
 #include "usart.h"
 #include "mydht11.h"
@@ -6,70 +22,95 @@
 #include "buzzer.h"
 #include <stdio.h>
 
-// å¼•ç”¨å¤–éƒ¨å˜é‡
-extern uint8_t temp;           // æ¸©åº¦ (DHT11)
-extern uint8_t humi;           // æ¹¿åº¦ (DHT11)
-extern uint32_t mq7_adc_value; // MQ-7 ADCå€¼
-extern float ppm;              // COæµ“åº¦ ppm
-extern uint8_t hc_sr501_value; // äººä½“çº¢å¤–æ„Ÿåº”
-extern uint8_t buzzer_bit1;    // èœ‚é¸£å™¨æ ‡å¿—1
-extern uint8_t buzzer_bit2;    // èœ‚é¸£å™¨æ ‡å¿—2
+#include "FreeRTOS.h"
+#include "task.h"
+#include "main.h"
+#include "cmsis_os.h"
 
-char payload[512];
-char people_str[16];
-char warning_str[16];
+/* ======================== Íâ²¿±äÁ¿ÒıÓÃ ======================== */
+
+extern uint8_t temp;           ///< ÎÂ¶ÈÖµ£¬À´×Ô DHT11 ´«¸ĞÆ÷£¨µ¥Î»£º¡ãC£©
+extern uint8_t humi;           ///< Êª¶ÈÖµ£¬À´×Ô DHT11 ´«¸ĞÆ÷£¨µ¥Î»£º%RH£©
+extern uint32_t mq7_adc_value; ///< MQ-7 ´«¸ĞÆ÷ ADC Ô­Ê¼²ÉÑùÖµ£¨12Î»£¬0~4095£©
+extern float ppm;              ///< CO Å¨¶È¼ÆËãÖµ£¨µ¥Î»£ºppm£©
+extern uint8_t hc_sr501_value; ///< HC-SR501 ÈËÌåºìÍâ¼ì²â½á¹û£¨0/1£©
+extern uint8_t buzzer_bit1;    ///< ·äÃùÆ÷±êÖ¾Î»1£¬À´×Ô MQ-7£¨CO³¬±êÎª1£©
+extern uint8_t buzzer_bit2;    ///< ·äÃùÆ÷±êÖ¾Î»2£¬À´×Ô HC-SR501£¨¼ì²âµ½ÈËÎª1£©
+
+/* ======================== Êı¾İ»º³åÇø ======================== */
+
+char payload[512];    ///< JSON ±¨ÎÄ»º³åÇø£¬´æ·Å¸ñÊ½»¯ºóµÄÉÏ±¨Êı¾İ
+char people_str[16];  ///< ÈËÔ±¼ì²â×´Ì¬×Ö·û´®£¨"ÓĞÈË" »ò "ÎŞÈË"£©
+char warning_str[16]; ///< CO Å¨¶È¾¯¸æ×Ö·û´®£¨"³¬±ê" »ò "Õı³£"£©
+
 /**
- * @brief ä¸ŠæŠ¥ä¼ æ„Ÿå™¨æ•°æ®åˆ°åä¸ºäº‘
+ * @brief  ´«¸ĞÆ÷Êı¾İÉÏ±¨»ªÎªÔÆ IoT Æ½Ì¨ FreeRTOS ÈÎÎñ
  *
- * æ•°æ®æ ¼å¼:
- * {
- *   "services": [{
- *     "service_id": "BasicData",
- *     "properties": {
- *       "temp": 25,
- *       "humi": 60,
- *       "mq-7": 1234,
- *       "ppm": 12,
- *       "hc_sr_501": true,
- *       "people": "æœ‰äºº",
- *       "warning": "æ­£å¸¸",
- *       "beep": false
- *     }
- *   }]
- * }
+ * @param  argument ÈÎÎñ²ÎÊı£¨Î´Ê¹ÓÃ£¬FreeRTOS ÈÎÎñº¯ÊıÇ©ÃûÒªÇó£©
+ * @retval ÎŞ£¨ËÀÑ­»·ÈÎÎñ£¬ÓÀ²»·µ»Ø£©
+ *
+ * @details ÈÎÎñÒÔ osDelay(1000) Ô¼ 2 ÃëÎªÖÜÆÚÖ´ĞĞÒ»´Î£¬Á÷³ÌÈçÏÂ£º
+ *          1. ¶ÁÈ¡ HC-SR501 ×´Ì¬£¬¹¹ÔìÈËÔ±¼ì²â×Ö·û´®£¨"ÓĞÈË"/"ÎŞÈË"£©
+ *          2. ÅĞ¶Ï MQ-7 ADC ÖµÊÇ·ñ³¬¹ıãĞÖµ 2500£¬¹¹Ôì¾¯¸æ×Ö·û´®£¨"³¬±ê"/"Õı³£"£©
+ *          3. ×ÛºÏÁ½¸ö·äÃùÆ÷±êÖ¾Î»ÅĞ¶Ï·äÃùÆ÷µ±Ç°×´Ì¬
+ *          4. ½«ËùÓĞ´«¸ĞÆ÷Êı¾İ°´»ªÎªÔÆ IoT Éè±¸ÊôĞÔ¸ñÊ½×é×° JSON ±¨ÎÄ
+ *          5. Í¨¹ı UART3 ´®¿Ú·¢ËÍ JSON ±¨ÎÄ¸ø ESP32-S3
+ *
+ * @note   JSON ±¨ÎÄ¸ñÊ½×ñÑ­»ªÎªÔÆ IoTDA Æ½Ì¨Éè±¸ÊôĞÔÉÏ±¨¹æ·¶£º
+ *         - Topic: $oc/devices/{device_id}/sys/properties/report
+ *         - service_id: Smart_Home
+ *         - ÊôĞÔ°üº¬£ºtemp, humi, mq-7, ppm, hc_sr_501, people, warning, beep
  */
-void esp_report(void)
+void esp_report(void *argument)
 {
-    uint8_t beep_status;
+    while (1)
+    {
+        uint8_t beep_status;
 
-    // æ„é€ å±æ€§å€¼
-    // äººå‘˜æ£€æµ‹å­—ç¬¦ä¸²
-    sprintf(people_str, hc_sr501_value ? "æœ‰äºº" : "æ— äºº");
+        /* ---- µÚ1²½£º¹¹ÔìÈËÔ±¼ì²â×´Ì¬×Ö·û´® ---- */
+        // hc_sr501_value = 1 ±íÊ¾¼ì²âµ½ÈËÌå£¬ÏÔÊ¾"ÓĞÈË"£»·ñÔòÏÔÊ¾"ÎŞÈË"
+        sprintf(people_str, hc_sr501_value ? "ÓĞÈË" : "ÎŞÈË");
 
-    // COæµ“åº¦è­¦å‘Šå­—ç¬¦ä¸² (ADC > 2500 è®¤ä¸ºè¶…æ ‡)
-    sprintf(warning_str, (mq7_adc_value > 2500) ? "è¶…æ ‡" : "æ­£å¸¸");
+        /* ---- µÚ2²½£º¹¹Ôì CO Å¨¶È¾¯¸æ×Ö·û´® ---- */
+        // ADC ²ÉÑùÖµ³¬¹ı 2500 ÈÏÎªÅ¨¶È³¬±ê£¬ÏÔÊ¾"³¬±ê"£»·ñÔòÏÔÊ¾"Õı³£"
+        sprintf(warning_str, (mq7_adc_value > 2500) ? "³¬±ê" : "Õı³£");
 
-    // èœ‚é¸£å™¨çŠ¶æ€
-    beep_status = (buzzer_bit1 || buzzer_bit2) ? 1 : 0;
+        /* ---- µÚ3²½£ºÅĞ¶Ï·äÃùÆ÷µ±Ç°×´Ì¬ ---- */
+        // buzzer_bit1(CO³¬±ê) »ò buzzer_bit2(ÈËÌå¼ì²â) ÈÎÒ»Îª1£¬·äÃùÆ÷¼´Îª¿ªÆô×´Ì¬
+        beep_status = (buzzer_bit1 || buzzer_bit2) ? 1 : 0;
 
-    // æ„é€ JSONè´Ÿè½½
-    sprintf(payload,
-            "{\"services\":[{\"service_id\":\"%s\","
-            "\"properties\":{"
-            "\"temp\":%d,"
-            "\"humi\":%d,"
-            "\"mq-7\":%lu,"
-            "\"ppm\":%.0f,"
-            "\"hc_sr_501\":%s,"
-            "\"people\":\"%s\","
-            "\"warning\":\"%s\","
-            "\"beep\":%s"
-            "}}]}",
-            HUAWEI_SERVICE_ID,
-            (int)temp, (int)humi, (unsigned long)mq7_adc_value, ppm,
-            hc_sr501_value ? "true" : "false",
-            people_str, warning_str, beep_status ? "true" : "false");
+        /* ---- µÚ4²½£º¹¹Ôì JSON ±¨ÎÄ ---- */
+        // °´»ªÎªÔÆ IoTDA Éè±¸ÊôĞÔÉÏ±¨¸ñÊ½×é×° JSON
+        // ¸÷×Ö¶ÎËµÃ÷£º
+        //   temp      - ÎÂ¶ÈÖµ£¨¡ãC£¬ÕûÊı£©
+        //   humi      - Êª¶ÈÖµ£¨%RH£¬ÕûÊı£©
+        //   mq-7      - MQ-7 ADC Ô­Ê¼Öµ£¨0~4095£©
+        //   ppm       - CO Å¨¶È£¨ppm£¬¸¡µãÈ¡Õû£©
+        //   hc_sr_501 - ÈËÌåºìÍâ²¼¶ûÖµ£¨true/false£©
+        //   people    - ÈËÔ±¼ì²âÎÄ×Ö£¨"ÓĞÈË"/"ÎŞÈË"£©
+        //   warning   - CO ¾¯¸æÎÄ×Ö£¨"³¬±ê"/"Õı³£"£©
+        //   beep      - ·äÃùÆ÷²¼¶ûÖµ£¨true/false£©
+        sprintf(payload,
+                "{\"services\":[{\"service_id\":\"%s\","
+                "\"properties\":{"
+                "\"temp\":%d,"
+                "\"humi\":%d,"
+                "\"mq-7\":%lu,"
+                "\"ppm\":%.0f,"
+                "\"hc_sr_501\":%s,"
+                "\"people\":\"%s\","
+                "\"warning\":\"%s\","
+                "\"beep\":%s"
+                "}}]}",
+                HUAWEI_SERVICE_ID,
+                (int)temp, (int)humi, (unsigned long)mq7_adc_value, ppm,
+                hc_sr501_value ? "true" : "false",
+                people_str, warning_str, beep_status ? "true" : "false");
 
-    // ç›´æ¥é€šè¿‡ä¸²å£å‘é€ JSON å­—ç¬¦ä¸²ï¼Œæœ«å°¾åŠ  \n æ–¹ä¾¿ ESP32 è¯»å–
-    my_printf(&huart3, "%s\n", payload); 
+        /* ---- µÚ5²½£ºÍ¨¹ı UART3 ·¢ËÍ JSON ±¨ÎÄ¸ø ESP32-S3 ---- */
+        // Ä©Î²¼Ó \n »»ĞĞ·û£¬·½±ã ESP32-S3 °´ĞĞ½âÎö½ÓÊÕÊı¾İ
+        my_printf(&huart3, "%s\n", payload);
+
+        osDelay(1000); // ÑÓÊ±Ô¼ 2 Ãë£¬½øÈëÏÂÒ»´ÎÉÏ±¨ÖÜÆÚ
+    }
 }
