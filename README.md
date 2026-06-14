@@ -344,11 +344,11 @@ APP 作为**数据消费端**，通过华为云 IAM 鉴权获取 Token，然后�
 
 | 配置项 | 值 |
 |--------|-----|
-| IAM 用户名 | `jifei` |
-| 华为账号名 | `hw005226973` |
-| 项目ID | `dd5978aa446b4690884b89027c186d6e` |
-| 设备ID | `69ce6bd8e094d615922d9e08_Smart_Home` |
-| IoT 应用端点 | `52e4e17470.st1.iotda-app.cn-east-3.myhuaweicloud.com` |
+| IAM 用户名 | `********` |
+| 华为账号名 | `********` |
+| 项目ID | `********************************` |
+| 设备ID | `********************************` |
+| IoT 应用端点 | `********.st1.iotda-app.cn-east-3.myhuaweicloud.com` |
 | 设备影子 API | `GET /v5/iot/{project_id}/devices/{device_id}/shadow` |
 | 数据刷新频率 | 每 2 秒 |
 
@@ -450,9 +450,9 @@ idf.py -p COM8 flash monitor
 
 | 配置项 | 值 |
 |--------|-----|
-| MQTT Broker | `52e4e17470.st1.iotda-device.cn-east-3.myhuaweicloud.com` |
+| MQTT Broker | `********.st1.iotda-device.cn-east-3.myhuaweicloud.com` |
 | 端口 | 1883 |
-| 设备ID | `69ce6bd8e094d615922d9e08_Smart_Home` |
+| 设备ID | `********************************` |
 | 发布主题 | `$oc/devices/.../sys/properties/report` |
 | 上传频率 | 每秒1次 |
 
