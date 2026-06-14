@@ -76,14 +76,16 @@ fun AuthScreen(onLoginSuccess: () -> Unit) {
 
 @Composable
 fun LoginScreen(onLoginSuccess: () -> Unit, onNavigateToRegister: () -> Unit) {
+    // 记住用户输入的账号和密码。在Compose中，这些变量一改变，相关UI就会自动更新。
     var username by remember { mutableStateOf("2750664768") }
     var password by remember { mutableStateOf("123456789") }
     var passwordVisible by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
-    // 获取 SharedPreferences 用于读取本地账号
+    // 获取 SharedPreferences 用于读取本地账号 (相当于手机本地的一个轻量级存储数据库)
     val sharedPrefs = context.getSharedPreferences("SmartHomeUsers", Context.MODE_PRIVATE)
 
+    // Card 是一个圆角卡片，让界面看起来有层次感
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -91,6 +93,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit, onNavigateToRegister: () -> Unit) {
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
+        // Column 是垂直布局，里面的内容会从上往下排列
         Column(
             modifier = Modifier.padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -118,6 +121,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit, onNavigateToRegister: () -> Unit) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // 用户名输入框
             OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },
@@ -128,6 +132,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit, onNavigateToRegister: () -> Unit) {
                 singleLine = true
             )
 
+            // 密码输入框
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
@@ -150,6 +155,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit, onNavigateToRegister: () -> Unit) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // 登录按钮
             Button(
                 onClick = {
                     if (username.isBlank() || password.isBlank()) {
@@ -157,12 +163,12 @@ fun LoginScreen(onLoginSuccess: () -> Unit, onNavigateToRegister: () -> Unit) {
                         return@Button
                     }
 
-                    // 1. 检查默认账号
+                    // 1. 检查默认账号 (硬编码的测试账号)
                     if (username == "2750664768" && password == "123456789") {
                         Toast.makeText(context, "登录成功 (默认账号)", Toast.LENGTH_SHORT).show()
                         onLoginSuccess()
                     }
-                    // 2. 检查本地注册账号
+                    // 2. 检查本地注册账号 (从SharedPreferences中读取)
                     else {
                         val savedPassword = sharedPrefs.getString(username, null)
                         if (savedPassword != null && savedPassword == password) {

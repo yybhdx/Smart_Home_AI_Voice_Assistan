@@ -10,27 +10,34 @@ import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
 
+/**
+ * 华为云物联网平台工具类
+ * 负责：身份认证（获取Token）、获取传感器数据、下发控制指令
+ */
 class HuaweiIOT {
 
     companion object {
         private const val TAG = "HuaweiIOT"
 
-        // 从APP配置参数.txt获取的配置
+        // --- 华为云连接参数 ---
+        // 这些参数就像是你的“账号密码”，用于告诉华为云你是谁，要访问哪个设备
         private const val HUAWEINAME = "hw005226973"  // 华为账号名/IAM用户名
         private const val IAMINAME = "jifei"    // IAM账户名
         private const val IAMPASSWORD = "a8pswys108"  // IAM账户密码
 
         // IoT相关配置
-        private const val PROJECT_ID = "dd5978aa446b4690884b89027c186d6e"
-        private const val DEVICE_ID = "69ce6bd8e094d615922d9e08_Smart_Home"
+        private const val PROJECT_ID = "dd5978aa446b4690884b89027c186d6e" // 项目ID
+        private const val DEVICE_ID = "69ce6bd8e094d615922d9e08_Smart_Home" // 设备ID（对应你的设备）
         private const val SERVICE_ID = "Smart_Home"  // 服务ID
 
         // IoT 接入终端节点（cn-east-3区域）
         private const val ENDPOINT = "52e4e17470.st1.iotda-app.cn-east-3.myhuaweicloud.com"
 
-        // IAM接口地址（cn-east-3区域）
+        // IAM接口地址（cn-east-3区域），用于获取通行证(Token)的接口地址
         private const val IAM_URL = "https://iam.cn-east-3.myhuaweicloud.com/v3/auth/tokens?nocatalog=false"
     }
+
+    // Token就像是一张“临时通行证”，每次请求云平台都需要带上它
 
     var token: String = ""
         private set

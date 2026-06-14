@@ -26,12 +26,12 @@ Smart_Home_AI_Voice_Assistan/
 ├── 华为云数据格式.txt                   ← 华为云物模型数据格式定义
 ├── ESP32-S3配置文件/                   ← ESP32-S3 编译所需的 sdkconfig 配置文件
 │   └── sdkconfig                      ← 需在编译前复制到 xiaozhi-esp32 工程根目录
-├── Smart_home_STM32/                  ← STM32F103 传感器采集工程 (FreeRTOS)
+├── Smart_home_STM32/                  ← STM32F103 传感器采集工程 (DHT11 + FreeRTOS)
+├── Smart_home_STM32_ModBus/           ← STM32F103 传感器采集工程 (Modbus + FreeRTOS 升级版)
 │   ├── Core/                          ← STM32 HAL 库核心代码 + FreeRTOS 任务定义
-│   ├── MyApp/                         ← 传感器驱动（DHT11、HC-SR501、MQ-7、OLED、蜂鸣器、ESP32通信）
-│   ├── Middlewares/                   ← FreeRTOS 内核源码 (V10.3.1)
+│   ├── MyApp/                         ← 传感器驱动（Modbus、HC-SR501、MQ-7、OLED、蜂鸣器、ESP32通信）
 │   ├── MDK-ARM/                       ← Keil 工程文件
-│   └── Smart home.ioc                 ← STM32CubeMX 配置文件（含 FreeRTOS 中间件）
+│   └── Smart home.ioc                 ← STM32CubeMX 配置文件
 ├── xiaozhi-esp32-1.8.4-2026.4.20/    ← ESP32-S3 主工程（小智AI + 传感器 + 华为云）
 │   └── main/
 │       ├── stm32_uart.c/h            ← STM32 串口通信 + 数据上传任务
@@ -129,7 +129,7 @@ STM32F103 端运行 **FreeRTOS 实时操作系统 (V10.3.1)**，使用 CMSIS-RTO
 
 | 任务 | 函数 | 功能 | 栈 | 优先级 | 周期 |
 |------|------|------|-----|--------|------|
-| dht11 | `dht11_task` | 读取 DHT11 温湿度，挂起调度器保护单总线时序 | 1024B | Normal | 2s |
+| temp_humi | `dht11_task` / `Temp_Humi_Read` | 读取温湿度 (DHT11 或 Modbus RTU) | 1024B/2048B | Normal/Above | 2s |
 | OLED | `oled_task` | 显示温湿度/ADC/PPM/人体检测/CO警告 | 1024B | Normal | 500ms |
 | MQ7 | `mq7_task` | ADC 读取 MQ-7，计算 PPM 浓度，超阈值触发报警 | 1024B | Normal | 500ms |
 | HC_SR_501 | `hc_sr501_task` | 读取 PA0 电平检测人体，联动蜂鸣器 | 1024B | AboveNormal | 200ms |
@@ -147,6 +147,7 @@ HC-SR501 检测到人 ──→ buzzer_bit2 = 1 ─┘
 
 ### 关键设计决策
 
+- **协议升级**：`Smart_home_STM32_ModBus` 版本将温湿度采集升级为 Modbus RTU 协议，解决了 DHT11 时序敏感且精度较低的问题。
 - **vTaskSuspendAll 而非 taskENTER_CRITICAL**：DHT11 读取期间需要 `HAL_Delay()`（依赖 SysTick 中断），因此只能挂起调度器而不能关中断
 - **栈大小分配**：调用 `my_printf`（含 vsnprintf）的任务至少需要 1024 字节栈，纯 GPIO 任务 512 字节
 - **堆大小 10240 字节**：7 个任务 + FreeRTOS Timer/Idle 任务的总需求约 7KB，留有余量

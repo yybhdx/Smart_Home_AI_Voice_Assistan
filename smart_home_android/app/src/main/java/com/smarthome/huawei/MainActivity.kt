@@ -34,17 +34,23 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * 主界面类：它是APP启动后显示的第一个核心界面
+ */
 class MainActivity : ComponentActivity() {
 
-    private val attributeData = mutableStateOf<Map<String, String>>(emptyMap())
-    private val connectionStatus = mutableStateOf("正在连接...")
-    private val lastUpdateTime = mutableStateOf("-")
-    // 控制是否正在进行轮询连接
+    // --- 状态管理 (State) ---
+    // 在Compose中，当这些变量的值改变时，手机屏幕会自动“刷新”受影响的部分
+    private val attributeData = mutableStateOf<Map<String, String>>(emptyMap()) // 存放传感器数据
+    private val connectionStatus = mutableStateOf("正在连接...")               // 连接状态文案
+    private val lastUpdateTime = mutableStateOf("-")                       // 最后更新时间
+    // 控制是否正在进行轮询连接 (是否开启自动刷新)
     private val isMonitoring = mutableStateOf(true)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // setContent 是界面的入口，这里定义了界面长什么样
         setContent {
             MaterialTheme(colorScheme = lightColorScheme(
                 primary = Color(0xFF1976D2),
@@ -56,6 +62,7 @@ class MainActivity : ComponentActivity() {
                     connectionStatus = connectionStatus.value,
                     lastUpdate = lastUpdateTime.value,
                     isMonitoring = isMonitoring.value,
+                    // 当用户点击“开启/断开”按钮时，更新 isMonitoring 的值
                     onToggleMonitoring = { active -> 
                         isMonitoring.value = active
                         if (active) {
@@ -64,6 +71,7 @@ class MainActivity : ComponentActivity() {
                             connectionStatus.value = "⏸ 已断开连接"
                         }
                     },
+                    // 处理注销逻辑
                     onLogout = {
                         startActivity(Intent(this, LoginActivity::class.java))
                         finish()
@@ -72,20 +80,26 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+        // 启动“轮询任务”：每隔几秒去云端拿一次新数据
         startMonitoringLoop()
     }
 
+    /**
+     * 监控循环：利用“协程(Coroutine)”在后台悄悄运行，不卡顿界面
+     */
     private fun startMonitoringLoop() {
-        lifecycleScope.launch(Dispatchers.IO) {
+        // lifecycleScope 确保当APP关闭时，这个循环也会自动停止，防止浪费流量和电量
+        lifecycleScope.launch(Dispatchers.IO) { // Dispatchers.IO 表示在“网络请求专用线程”运行
             try {
-                val huaweiIOT = HuaweiIOT()
+                val huaweiIOT = HuaweiIOT() // 初始化云平台工具类
                 val sdf = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
 
-                while (true) {
-                    if (isMonitoring.value) {
+                while (true) { // 无限循环
+                    if (isMonitoring.value) { // 只有在开启监控时才发请求
                         try {
-                            val newData = huaweiIOT.getAllAttributes()
+                            val newData = huaweiIOT.getAllAttributes() // 去华为云拿数据
                             if (newData.isNotEmpty()) {
+                                // 拿到了数据！切回“主线程(Main)”去更新界面
                                 withContext(Dispatchers.Main) {
                                     attributeData.value = newData
                                     lastUpdateTime.value = sdf.format(Date())
